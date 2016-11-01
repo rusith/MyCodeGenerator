@@ -2,11 +2,8 @@
 		public $dataType$ $name$
 		{ 
 			get 
-			{
-				if($fieldName$ == null){
-					$fieldName$ = _context.$foreignTableName$Repository.Get($freignKeyProperty$);
-				}
-				return $fieldName$; 
-			} 
+			{ 
+				return ($keyPropertyAccessor$<1) ? null : ($fieldName$ ?? ($fieldName$ = _context.Unit.$foreignTableName$Repository.Get($keyPropertyAccessor$)));
+			}
 			set { $fieldName$ = value; $freignKeyProperty$ = value.ID; NotifyPropertyChanged("$freignKeyProperty$");}
 		}

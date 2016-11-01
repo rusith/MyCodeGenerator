@@ -1,0 +1,11 @@
+﻿namespace $projectNs$.Objects.Views
+{
+    public class $viewName$
+    {
+        #region Properties
+
+		$properties$
+
+        #endregion
+    }
+}

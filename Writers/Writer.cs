@@ -22,7 +22,7 @@ namespace MyCodeGenerator.Writers
             File.WriteAllText(path,content);
         }
 
-        public static void WriteBase(List<Repository> repositories )
+        public static void WriteBase(List<Repository> repositories,List<View> views )
         {
             var basedir = Settings.RootDirectory + "\\Base";
             var core = basedir + "\\Core";
@@ -49,15 +49,29 @@ namespace MyCodeGenerator.Writers
                 repoInitializeString.AppendFormat("\n\t\t\t{0}Repository = new {0}Repository(_context);", repo.Name);
             }
 
+            var viewString = new StringBuilder();
+            foreach (var view in views)
+            {
+                viewString.AppendFormat("\n\t\tpublic List<{0}Bo> {0}(object where=null){{return _context.QueryView<{0}Bo>(\"{0}\",where);}}", view.Name);
+            }
+
             WriteFile(iunitofWork, TemplateGenarator.ReadTemplate("IUnitOfWork").Replace("$repositories$", repositoryStringCore.ToString()));
             WriteFile(idbcontext, TemplateGenarator.ReadTemplate("IDbContext"));
             WriteFile(context,TemplateGenarator.ReadTemplate("Context"));
-            WriteFile(unitofWork,TemplateGenarator.ReadTemplate("UnitOfWork").Replace("$repositories$", repositoryString.ToString()).Replace("$repoInit$",repoInitializeString.ToString()));
+            WriteFile(unitofWork,TemplateGenarator.ReadTemplate("UnitOfWork")
+                .Replace("$repositories$", repositoryString.ToString())
+                .Replace("$repoInit$",repoInitializeString.ToString())
+                .Replace("$views$",viewString.ToString()));
         }
 
         private static void WriteBo(Bo bo,string basePath)
         {
             WriteFile(basePath+"\\"+bo.Name+"Bo.cs",bo.Content);
+        }
+
+        private static void WriteView(View view,string baseDir)
+        {
+            WriteFile(baseDir+"\\"+view.Name+"Bo.cs",view.Content);
         }
 
         public static void WriteBos(List<Bo> bos)
@@ -90,7 +104,7 @@ namespace MyCodeGenerator.Writers
             WriteFile(basePath+"\\Implementation\\"+repo.Name+"Repository.cs",repo.ImpleContent);
         }
 
-        public static void WriteBos(List<Repository> repos)
+        public static void WriteRepositories(List<Repository> repos)
         {
             var basedir = Settings.RootDirectory + "\\Repositories";
             var core = basedir + "\\Core";
@@ -108,6 +122,20 @@ namespace MyCodeGenerator.Writers
             foreach (var repo in repos)
             {
                 WriteRepository(repo,basedir);
+            }
+        }
+
+        public static void WriteViews(List<View> views)
+        {
+            var basedir = Settings.RootDirectory + "\\Objects";
+            var viewdir = basedir + "\\Views";
+
+            WriteFolderIfNotExists(basedir);
+            WriteFolderIfNotExists(viewdir);
+
+            foreach (var view in views)
+            {
+                WriteView(view, viewdir);
             }
         }
     }

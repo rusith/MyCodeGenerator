@@ -10,9 +10,13 @@ namespace $projectNs$.Base.Implementation
 
 		$repositories$
 
+
+		$views$
+
         public UnitOfWork()
         {
             _context = new $projectName$Context();
+			_context.Unit = this;
 			$repoInit$
         }
 

@@ -8,33 +8,36 @@ using Dapper;
 using $projectNs$.Base.Core;
 using $projectNs$.Common;
 using $projectNs$.Objects.Core;
-using $projectNs$.Objects.Procedures.Core;
 using IndicoPackingCodeBase.Tools;
 using System.Configuration;
+using System.Collections.Generic;
+using $projectNs$.Objects.Views;
 
 namespace $projectNs$.Base.Implementation
 {
     public class $projectName$Context : IDbContext
     {
-        private readonly HashSet<IEntity> _dirtyEntities;
+		private readonly HashSet<IEntity> _dirtyEntities;
+        private readonly HashSet<IEntity> _entities; 
         private readonly IDbConnection _connection;
 
-        public IndicoContext()
+		public IUnitOfWork Unit { get; set; }
+
+        public  $projectName$Context()
         {
             _connection = new SqlConnection(ConfigurationManager.ConnectionStrings["$projectName$"].ConnectionString);
             _connection.Open();
             _dirtyEntities = new HashSet<IEntity>();
+			_entities=new HashSet<IEntity>();
         }
 
-        public int? Add(IEntity entity,string tableName)
-        {
-            return entity == null ? 0 : _connection.Insert(entity);
-        }
 
         public T Get<T>(int id) where T : class, IEntity
         {
             T entity;
-
+            var found = _entities.OfType<T>().Where(t => t.ID == id).ToList();
+            if (found.Any())
+                return found.First();
             try
             {
                 entity = _connection.Get<T>(id);
@@ -45,15 +48,19 @@ namespace $projectNs$.Base.Implementation
             }
             if (entity == null)
                 return null;
+            _entities.Add(entity);
             entity.PropertyChanged += EntityPropertyChanged;
-            entity._Context = this;
+            entity._context = this;
 
             return entity;
         }
 
-        public IEnumerable<T> Get<T>() where T : class, IEntity
-        {
+       public IEnumerable<T> Get<T>() where T : class, IEntity
+       {
             List<T> entities;
+            var localentities = _entities.OfType<T>().ToList();
+            if (localentities.Count == Count<T>())
+                return localentities;
             try
             {
                 entities = _connection.GetList<T>().ToList();
@@ -66,33 +73,43 @@ namespace $projectNs$.Base.Implementation
                 return entities;
             foreach (var entity in entities)
             {
+                _entities.Add(entity);
                 entity.PropertyChanged += EntityPropertyChanged;
-                entity._Context = this;
+                entity._context = this;
             }
             return entities;
         }
 
-        public IEnumerable<T> GetFromStoredProcedure<T>(params object[] parameters) where T : class, ISpResult
+        //public IEnumerable<T> GetFromStoredProcedure<T>(params object[] parameters) where T : class, ISpResult
+        //{
+        //    try
+        //    {
+        //        return _connection.Query<T>(QueryBuilder.ExecuteStoredProcedure(typeof(T).Name, parameters));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new Exception("Cannot retrieve data from the database.", e);
+        //    }
+        //}
+
+		public int? Add(IEntity entity)
         {
-            try
+            var res = entity == null ? 0 : _connection.Insert(entity);
+
+            if (res > 0 && entity!=null)
             {
-                return _connection.Query<T>(QueryBuilder.ExecuteStoredProcedure(typeof(T).Name, parameters));
+                entity._context = this;
+                entity.PropertyChanged += EntityPropertyChanged;
+                _entities.Add(entity);
             }
-            catch (Exception e)
-            {
-                throw new Exception("Cannot retrieve data from the database.", e);
-            }
+                
+            return res;
         }
 
-        public int? Add(IEntity entity)
-        {
-            return entity == null ? 0 : _connection.Insert(entity);
-        }
-
-        public void AddRange(IEnumerable<IEntity> entities)
+		public void AddRange(IEnumerable<IEntity> entities)
         {
             foreach (var entity in entities.Where(entity => entity != null))
-                _connection.Insert(entity);
+                Add(entity);
         }
 
         private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -119,11 +136,12 @@ namespace $projectNs$.Base.Implementation
 
         public void Delete(IEntity entity)
         {
-            if (entity != null && entity.ID > 0) { }
+			if (entity != null && entity.ID > 0) { }
             {
                 _connection.Delete(entity);
                 if (_dirtyEntities.Contains(entity))
                     _dirtyEntities.Remove(entity);
+                _entities.Remove(entity);
             }
         }
 
@@ -131,7 +149,11 @@ namespace $projectNs$.Base.Implementation
         public void Delete<T>(int id) where T:IEntity
         {
             if (id > 0)
+            {
                 _connection.Delete<T>(id);
+                var ent = _entities.OfType<T>().FirstOrDefault(t => t.ID == id);
+                _entities.Remove(ent);
+            }
         }
 
 
@@ -146,7 +168,18 @@ namespace $projectNs$.Base.Implementation
 
         IEnumerable<T> IDbContext.Find<T>(Func<T, bool> predicate)
         {
-            return _connection.GetList<T>().Where(predicate);
+            var localentities = _entities.OfType<T>().ToList();
+            if (localentities.Count == Count<T>())
+                return localentities.Where(predicate);
+
+            var entities= _connection.GetList<T>().Where(predicate).ToList();
+            foreach (var entity in entities)
+            {
+                entity._context = this;
+                entity.PropertyChanged += EntityPropertyChanged;
+                _entities.Add(entity);
+            }
+            return entities;
         }
 
         IEnumerable<T> IDbContext.Where<T>(object values)
@@ -157,7 +190,7 @@ namespace $projectNs$.Base.Implementation
             foreach (var item in result)
             {
                 item.PropertyChanged += EntityPropertyChanged;
-                item._Context = this;
+                item._context = this;
             }
             return result;
         }
@@ -165,6 +198,22 @@ namespace $projectNs$.Base.Implementation
         public int Count<T>()
         {
             return _connection.RecordCount<T>();
+        }
+
+		public List<T> QueryView<T>(string viewname,object where=null ) where T : class
+        {
+            var queryBuilder = new StringBuilder("SELECT * FROM [dbo][" + viewname + "]");
+            if (where != null)
+                queryBuilder.Append(CreateWhere(where));
+            return _connection.Query<T>(queryBuilder.ToString()).ToList();
+        }
+
+        private static string CreateWhere(object where)
+        {
+            var type = where.GetType();
+            var builder = new StringBuilder(" WHERE ");
+            var condisions = type.GetProperties().Select(property => string.Format("[{0}] = '{1}'", property.Name, property.GetValue(@where).ToString().Replace("'","''"))).ToList();
+            return builder.Append(condisions.Aggregate((c, n) => c + " AND " + n)).ToString();
         }
     }
 }

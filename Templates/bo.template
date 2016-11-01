@@ -1,12 +1,12 @@
-using System.ComponentModel;
-using System.ComponentModel.Design;
+using System;
 using Dapper;
-using $projectNs$.Objects.Core
+using System.Collections.Generic;
+using System.Linq;
 
-namespace $projectNs$.Objects.Implementaion
+namespace $projectNs$.Objects.Implementation
 {
 	[Table("$tableName$")]
-	public class $tableName$Bo : IEntity
+	public class $tableName$Bo : Entity
 	{
 		#region Fields
 		$fields$

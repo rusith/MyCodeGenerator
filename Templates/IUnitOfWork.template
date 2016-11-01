@@ -6,6 +6,7 @@ namespace $projectNs$.Base.Core
     public interface IUnitOfWork : IDisposable
     {
 		$repositories$
+
         void Complete();
     }
 }

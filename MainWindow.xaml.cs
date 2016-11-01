@@ -18,17 +18,17 @@ namespace MyCodeGenerator
             InitializeComponent();
         }
 
-        private void OnGenerateClick(object sender, RoutedEventArgs e)
+        private void Generate()
         {
-            if(ConnectionString.Text.Length<1)
+            if (ConnectionString.Text.Length < 1)
                 return;
-            
-            if(LocationInput.Text.Length<1)
+
+            if (LocationInput.Text.Length < 1)
                 return;
 
             connectionString = ConnectionString.Text;
             var rootDirectory = new DirectoryInfo(LocationInput.Text);
-            if(rootDirectory.Exists==false)
+            if (rootDirectory.Exists == false)
                 rootDirectory.Create();
 
             var reader = new DatabaseReader(connectionString, providername);
@@ -37,6 +37,11 @@ namespace MyCodeGenerator
             Settings.ProjectNamespace = ProjectNamespaceInput.Text;
             Settings.ProjectName = ProjectNameInput.Text;
             MainGenerator.Generate(schema);
+        }
+
+        private void OnGenerateClick(object sender, RoutedEventArgs e)
+        {
+           Generate();
         }
 
         private void OnBrowseButtonClick(object sender, RoutedEventArgs e)
@@ -55,6 +60,12 @@ namespace MyCodeGenerator
         private void ProjectNameInput_Copy_TextChanged(object sender, TextChangedEventArgs e)
         {
 
+        }
+
+        private void OnRegenerateButtonClick(object sender, RoutedEventArgs e)
+        {
+            TemplateGenarator.Clear();
+            Generate();
         }
     }
 }

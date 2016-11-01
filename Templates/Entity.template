@@ -10,7 +10,7 @@ namespace $projectNs$.Objects.Implementation
 
         [Key]
         public int ID { get; set; }
-        public IDbContext _Context { get; set; }
+        public IDbContext _context { get; set; }
 
         #region PropertyChange
 

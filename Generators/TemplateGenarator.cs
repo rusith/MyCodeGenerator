@@ -18,6 +18,21 @@ namespace MyCodeGenerator.Generators
         private static string _repositoryTemplate;
         private static string _repsitoryCoreTemplate;
         private static string _referenceListTemplate;
+        private static string _viewTemplate;
+        private static string _autoPropertyTemplate;
+
+
+        private static readonly HashSet<string> NullableTypes = new HashSet<string>
+        {
+            "int",
+            "short",
+            "long",
+            "double",
+            "decimal",
+            "float",
+            "bool",
+            "DateTime"
+        };
 
         public static string ReadTemplate(string templateName)
         {
@@ -37,7 +52,7 @@ namespace MyCodeGenerator.Generators
                 return builder.Replace("$dataType$", column.ForeignKeyTableName + "Bo")
                     .Replace("$name$", Converters.Convert.PropertyNameToFieldName("Obj" + column.Name)).ToString();
             }
-            return builder.Replace("$dataType$", column.DataType.NetDataTypeCSharpName)
+            return builder.Replace("$dataType$", column.DataType.NetDataTypeCSharpName+ (column.Nullable && NullableTypes.Contains(column.DataType.NetDataTypeCSharpName) ? "?" : ""))
                 .Replace("$name$", Converters.Convert.PropertyNameToFieldName(column.Name)).ToString();
         }
 
@@ -48,6 +63,15 @@ namespace MyCodeGenerator.Generators
             var builder = new StringBuilder(_referenceListTemplate);
             return builder.Replace("$refTable$", refTableName)
                 .Replace("$tableName$", currentTableaName).ToString();
+        }
+
+        public static string GenerateAutoProperty(DatabaseColumn column)
+        {
+            if (_autoPropertyTemplate == null)
+                _autoPropertyTemplate = ReadTemplate("autoProperty");
+            var builder = new StringBuilder(_autoPropertyTemplate);
+            return builder.Replace("$dataType$", column.DataType.NetDataTypeCSharpName + (column.Nullable && NullableTypes.Contains(column.DataType.NetDataTypeCSharpName) ? "?" : ""))
+                .Replace("$name$", column.Name).ToString();
         }
 
         public static string GenerateProperty(DatabaseColumn column,bool normal=false)
@@ -61,14 +85,15 @@ namespace MyCodeGenerator.Generators
                     .Replace("$name$", "Obj" + column.Name)
                     .Replace("$fieldName$", Converters.Convert.PropertyNameToFieldName("Obj" + column.Name))
                     .Replace("$foreignTableName$", column.ForeignKeyTableName)
-                    .Replace("$freignKeyProperty$", column.Name).ToString();
+                    .Replace("$freignKeyProperty$", column.Name).ToString()
+                    .Replace("$keyPropertyAccessor$", string.Format(column.Nullable ? "{0}.GetValueOrDefault()" : "{0}", column.Name));
             }
             else
             {
                 if (_propertyTemplate == null)
                     _propertyTemplate = ReadTemplate("property");
                 var builder = new StringBuilder(_propertyTemplate);
-                return builder.Replace("$dataType$", column.DataType.NetDataTypeCSharpName)
+                return builder.Replace("$dataType$", column.DataType.NetDataTypeCSharpName + (column.Nullable && NullableTypes.Contains(column.DataType.NetDataTypeCSharpName) ? "?" : ""))
                     .Replace("$name$", column.Name)
                     .Replace("$fieldName$", Converters.Convert.PropertyNameToFieldName(column.Name)).ToString();
             }
@@ -86,7 +111,7 @@ namespace MyCodeGenerator.Generators
 
             var fields = new List<string>();
             var properties = new List<string>();
-            foreach (var column in table.Columns)
+            foreach (var column in table.Columns.Where(column => column.Name != "ID"))
             {
                 fields.Add(GenerateField(column));
                 properties.Add(GenerateProperty(column));
@@ -122,6 +147,30 @@ namespace MyCodeGenerator.Generators
                 _repsitoryCoreTemplate = ReadTemplate("RepositoryCore");
             var builder = new StringBuilder(_repsitoryCoreTemplate);
             return builder.Replace("$tableName$", table.Name).ToString();
+        }
+
+        public static string GenerateView(DatabaseView view)
+        {
+            if (_viewTemplate == null)
+                _viewTemplate = ReadTemplate("view");
+            var builder = new StringBuilder(_viewTemplate);
+            var properties = view.Columns.Select(GenerateAutoProperty).ToList();
+            var propertyString = properties.Aggregate((c, n) => c + n);
+            return builder.Replace("$viewName$", view.Name+"Bo")
+                .Replace("$properties$", propertyString).ToString();
+        }
+
+        public static void Clear()
+        {
+            _fieldTemplate = null;
+            _propertyTemplate = null;
+            _referencePropertyTemplate = null;
+            _boTemplate = null;
+            _repositoryTemplate = null;
+            _repsitoryCoreTemplate = null;
+            _referenceListTemplate = null;
+            _viewTemplate = null;
+            _autoPropertyTemplate = null;
         }
     }
 }

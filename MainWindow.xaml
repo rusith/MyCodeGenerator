@@ -17,6 +17,7 @@
         <Label  Content="Project Name" HorizontalAlignment="Left" Height="23" Margin="10,86,0,0" VerticalAlignment="Top" Width="88"/>
         <TextBox x:Name="ProjectNamespaceInput" HorizontalAlignment="Left" Height="30" Margin="13,45,0,0"  TextWrapping="Wrap" Text="IndicoPacking.DAL" VerticalAlignment="Top" Width="522" TextChanged="ProjectNameInput_Copy_TextChanged"/>
         <Label  Content="Project Namespace" HorizontalAlignment="Left" Height="23" Margin="13,17,0,0" VerticalAlignment="Top" Width="120"/>
+        <Button x:Name="RegenerateButton" Content="Regenerate" HorizontalAlignment="Left" Height="34" Margin="411,322,0,0" VerticalAlignment="Top" Width="108" Click="OnRegenerateButtonClick"/>
 
     </Grid>
 </Window>

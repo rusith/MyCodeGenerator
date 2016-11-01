@@ -1,0 +1,8 @@
+﻿
+		public List<$refTable$Bo> $refTable$sWhereThisIs$tableName$
+		{
+			get 
+			{
+				return _context.$refTable$Repository.Where(new {$tableName$ = ID}).ToList()
+			}
+		}

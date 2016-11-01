@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using $projectNs$.Objects.Core;
+
+namespace $projectNs$.Repositories.Core
+{
+    public interface IRepository<T> where T : IEntity
+    {
+        int Count { get; }
+        T Get(int id);
+        IEnumerable<T> Get();
+        IEnumerable<T> Find(Func<T, bool> predicate);
+        void AddRange(IEnumerable<T> entities);
+        int? Add(T entity);
+        void Delete(T entity);
+        void Delete(int id);
+        void DeleteRange(IEnumerable<T> ids);
+        IEnumerable<T> Where(object values);
+    }
+}

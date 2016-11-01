@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using $projectNs$.Base.Core;
+using $projectNs$.Objects.Implementation;
+using $projectNs$.Repositories.Core;
+using $projectNs$.Objects.Core;
+
+namespace $projectNs$.Repositories.Implementation
+{
+    public class $tableName$Repository : Repository<$tableName$Bo>, I$tableName$Repository
+    {
+        public $tableName$Repository(IDbContext context) : base(context)
+        {
+            
+        }
+    }
+}

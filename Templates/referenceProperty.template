@@ -1,0 +1,12 @@
+
+		public $dataType$ $name$
+		{ 
+			get 
+			{
+				if($fieldName$ == null){
+					$fieldName$ = _context.$foreignTableName$Repository.Get($freignKeyProperty$);
+				}
+				return $fieldName$; 
+			} 
+			set { $fieldName$ = value; $freignKeyProperty$ = value.ID; NotifyPropertyChanged("$freignKeyProperty$");}
+		}

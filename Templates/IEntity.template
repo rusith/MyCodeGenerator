@@ -1,0 +1,13 @@
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using $projectNs$.Base.Core;
+
+namespace $projectNs$.Objects.Core
+{
+    public interface IEntity : INotifyPropertyChanged
+    {
+        IDbContext _context { get; set; }
+        int ID { get; set; }
+    }
+}

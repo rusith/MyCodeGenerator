@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using $projectNs$.Objects.Core;
+using $projectNs$.Objects.Implementation;
+using $projectNs$.Objects.Procedures.Core;
+
+namespace $projectNs$.Base.Core
+{
+    public interface IDbContext : IDisposable
+    {
+        void SaveChanges();
+        T Get<T>(int id) where T : class, IEntity;
+        IEnumerable<T> Get<T>() where T : class, IEntity;
+        int? Add(IEntity entity);
+        void AddRange(IEnumerable<IEntity> entities);
+        void Delete(IEntity entity);
+        void DeleteRange(IEnumerable<IEntity> entities);
+        IEnumerable<T> Find<T>(Func<T, bool> predicate) where T : class, IEntity;
+        IEnumerable<T> GetFromStoredProcedure<T>(params object[] parameters) where T : class, ISpResult;
+        IEnumerable<T> Where<T>(object values) where T : class, IEntity;
+        int Count<T>();
+        void Delete<T>(int id) where T : IEntity;
+    }
+}

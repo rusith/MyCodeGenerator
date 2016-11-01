@@ -1,0 +1,24 @@
+using System.ComponentModel;
+using System.ComponentModel.Design;
+using Dapper;
+using $projectNs$.Objects.Core
+
+namespace $projectNs$.Objects.Implementaion
+{
+	[Table("$tableName$")]
+	public class $tableName$Bo : IEntity
+	{
+		#region Fields
+		$fields$
+
+		#endregion
+
+		#region Properties
+		$properties$
+
+		$referenceLists$
+
+		#endregion
+	}
+} 
+

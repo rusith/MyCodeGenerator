@@ -1,0 +1,29 @@
+﻿using $projectNs$.Base.Core;
+using $projectNs$.Repositories.Core;
+using $projectNs$.Repositories.Implementation;
+
+namespace $projectNs$.Base.Implementation
+{
+    public class UnitOfWork : IUnitOfWork
+    {
+        private readonly IDbContext _context;
+
+		$repositories$
+
+        public UnitOfWork()
+        {
+            _context = new $projectName$Context();
+			$repoInit$
+        }
+
+        public void Complete()
+        {
+            _context.SaveChanges();
+        }
+
+        public void Dispose()
+        {
+            _context.Dispose();
+        }
+    }
+}

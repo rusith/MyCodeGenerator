@@ -1,0 +1,9 @@
+﻿using $projectNs$.Objects.Implementation;
+
+namespace $projectNs$.Repositories.Core
+{
+    public interface I$tableName$Repository:IRepository<$tableName$Bo>
+    {
+
+    }
+}

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DatabaseSchemaReader.DataSchema;
 using MyCodeGenerator.Models;
+using MyCodeGenerator.Writers;
 
 namespace MyCodeGenerator.Generators
 {
@@ -12,12 +10,28 @@ namespace MyCodeGenerator.Generators
     {
         private static List<Bo> GenerateTables(DatabaseSchema schema)
         {
-            return schema.Tables.Select(BoGenerator.Generate).ToList();
+            var tables = new List<Bo>();
+            foreach (var table in schema.Tables)
+            {
+                tables.Add(BoGenerator.Generate(table));
+            }
+            return tables;
         }
+
+        private static List<Repository> GeneRepositories(DatabaseSchema schema)
+        {
+            return schema.Tables.Select(RepositoryGenerator.Generate).ToList();
+        } 
 
         public static void Generate(DatabaseSchema schema)
         {
-            var tables = GenerateTables(schema);
+            var repos = GeneRepositories(schema);
+            var bos = GenerateTables(schema);
+            BoGenerator.GenerateReferenceLists(schema,bos);
+            Writer.WriteBase(repos);
+            Writer.WriteBos(bos);
+            Writer.WriteBos(repos);
+
         }
     }
 }

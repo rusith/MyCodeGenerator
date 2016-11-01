@@ -5,14 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyCodeGenerator"
         mc:Ignorable="d"
-        Title="My Code Generator" Height="243" Width="661.5">
+        Title="My Code Generator" Height="436.669" Width="661.5">
     <Grid>
-        <TextBox x:Name="LocationInput" HorizontalAlignment="Left" Height="30" Margin="10,38,0,0"  TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="522"/>
-        <Button x:Name="BrowseButton" Content="Browse" HorizontalAlignment="Left" Height="30" Margin="553,38,0,0" VerticalAlignment="Top" Width="70" Click="OnBrowseButtonClick"/>
-        <Label  Content="Root Folder" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" VerticalAlignment="Top" Width="88"/>
-        <TextBox x:Name="ConnectionString" HorizontalAlignment="Left" Height="30" Margin="10,122,0,0"  TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="634"/>
-        <Label  Content="Connection String" HorizontalAlignment="Left" Height="26" Margin="10,91,0,0" VerticalAlignment="Top" Width="147"/>
-        <Button x:Name="GenerateButton" Content="Generate" HorizontalAlignment="Left" Height="34" Margin="536,166,0,0" VerticalAlignment="Top" Width="108" Click="OnGenerateClick"/>
+        <TextBox x:Name="LocationInput" HorizontalAlignment="Left" Height="30" Margin="10,184,0,0"  TextWrapping="Wrap" Text="C:\Users\srlso\Desktop\DataAccess" VerticalAlignment="Top" Width="522"/>
+        <Button x:Name="BrowseButton" Content="Browse" HorizontalAlignment="Left" Height="30" Margin="553,184,0,0" VerticalAlignment="Top" Width="70" Click="OnBrowseButtonClick"/>
+        <Label  Content="Root Folder" HorizontalAlignment="Left" Height="23" Margin="10,156,0,0" VerticalAlignment="Top" Width="88"/>
+        <TextBox x:Name="ConnectionString" HorizontalAlignment="Left" Height="44" Margin="10,268,0,0"  TextWrapping="Wrap" Text="Data Source=DESKTOP-EKOA1UK\SQLEXPRESS;initial catalog=IndicoPacking;integrated security=True;multipleactiveresultsets=True;application name=EntityFramework" VerticalAlignment="Top" Width="634" TextChanged="ConnectionString_TextChanged"/>
+        <Label  Content="Connection String" HorizontalAlignment="Left" Height="26" Margin="10,237,0,0" VerticalAlignment="Top" Width="147"/>
+        <Button x:Name="GenerateButton" Content="Generate" HorizontalAlignment="Left" Height="34" Margin="536,322,0,0" VerticalAlignment="Top" Width="108" Click="OnGenerateClick"/>
+        <TextBox x:Name="ProjectNameInput" HorizontalAlignment="Left" Height="30" Margin="10,114,0,0"  TextWrapping="Wrap" Text="IndicoPacking" VerticalAlignment="Top" Width="522"/>
+        <Label  Content="Project Name" HorizontalAlignment="Left" Height="23" Margin="10,86,0,0" VerticalAlignment="Top" Width="88"/>
+        <TextBox x:Name="ProjectNamespaceInput" HorizontalAlignment="Left" Height="30" Margin="13,45,0,0"  TextWrapping="Wrap" Text="IndicoPacking.DAL" VerticalAlignment="Top" Width="522" TextChanged="ProjectNameInput_Copy_TextChanged"/>
+        <Label  Content="Project Namespace" HorizontalAlignment="Left" Height="23" Margin="13,17,0,0" VerticalAlignment="Top" Width="120"/>
 
     </Grid>
 </Window>

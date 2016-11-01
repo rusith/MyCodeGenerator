@@ -1,19 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using DatabaseSchemaReader;
 using MyCodeGenerator.Generators;
 
@@ -45,6 +33,9 @@ namespace MyCodeGenerator
 
             var reader = new DatabaseReader(connectionString, providername);
             var schema = reader.ReadAll();
+            Settings.RootDirectory = rootDirectory;
+            Settings.ProjectNamespace = ProjectNamespaceInput.Text;
+            Settings.ProjectName = ProjectNameInput.Text;
             MainGenerator.Generate(schema);
         }
 
@@ -54,6 +45,16 @@ namespace MyCodeGenerator
             dialog.ShowDialog();
             var location = dialog.SelectedPath;
             LocationInput.Text = location;
+        }
+
+        private void ConnectionString_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
+        private void ProjectNameInput_Copy_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }

@@ -1,0 +1,26 @@
+﻿using System.ComponentModel;
+using $projectNs$.Base.Core;
+using $projectNs$.Objects.Core;
+using Dapper;
+
+namespace $projectNs$.Objects.Implementation
+{
+    public class Entity:IEntity
+    {
+
+        [Key]
+        public int ID { get; set; }
+        public IDbContext _Context { get; set; }
+
+        #region PropertyChange
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void NotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
+    }
+}

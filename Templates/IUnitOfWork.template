@@ -1,0 +1,11 @@
+﻿using System;
+using $projectNs$.Repositories.Core;
+
+namespace $projectNs$.Base.Core
+{
+    public interface IUnitOfWork : IDisposable
+    {
+		$repositories$
+        void Complete();
+    }
+}

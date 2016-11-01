@@ -1,0 +1,170 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Runtime.InteropServices;
+using Dapper;
+using $projectNs$.Base.Core;
+using $projectNs$.Common;
+using $projectNs$.Objects.Core;
+using $projectNs$.Objects.Procedures.Core;
+using IndicoPackingCodeBase.Tools;
+using System.Configuration;
+
+namespace $projectNs$.Base.Implementation
+{
+    public class $projectName$Context : IDbContext
+    {
+        private readonly HashSet<IEntity> _dirtyEntities;
+        private readonly IDbConnection _connection;
+
+        public IndicoContext()
+        {
+            _connection = new SqlConnection(ConfigurationManager.ConnectionStrings["$projectName$"].ConnectionString);
+            _connection.Open();
+            _dirtyEntities = new HashSet<IEntity>();
+        }
+
+        public int? Add(IEntity entity,string tableName)
+        {
+            return entity == null ? 0 : _connection.Insert(entity);
+        }
+
+        public T Get<T>(int id) where T : class, IEntity
+        {
+            T entity;
+
+            try
+            {
+                entity = _connection.Get<T>(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("cannot retrieve data from the database", e);
+            }
+            if (entity == null)
+                return null;
+            entity.PropertyChanged += EntityPropertyChanged;
+            entity._Context = this;
+
+            return entity;
+        }
+
+        public IEnumerable<T> Get<T>() where T : class, IEntity
+        {
+            List<T> entities;
+            try
+            {
+                entities = _connection.GetList<T>().ToList();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("cannot retrieve data from the database", e);
+            }
+            if (entities.Count <= 0)
+                return entities;
+            foreach (var entity in entities)
+            {
+                entity.PropertyChanged += EntityPropertyChanged;
+                entity._Context = this;
+            }
+            return entities;
+        }
+
+        public IEnumerable<T> GetFromStoredProcedure<T>(params object[] parameters) where T : class, ISpResult
+        {
+            try
+            {
+                return _connection.Query<T>(QueryBuilder.ExecuteStoredProcedure(typeof(T).Name, parameters));
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cannot retrieve data from the database.", e);
+            }
+        }
+
+        public int? Add(IEntity entity)
+        {
+            return entity == null ? 0 : _connection.Insert(entity);
+        }
+
+        public void AddRange(IEnumerable<IEntity> entities)
+        {
+            foreach (var entity in entities.Where(entity => entity != null))
+                _connection.Insert(entity);
+        }
+
+        private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            _dirtyEntities.Add((IEntity)sender);
+        }
+
+
+        public void Dispose()
+        {
+            _connection.Close();
+            _dirtyEntities.Clear();
+        }
+
+        public void SaveChanges()
+        {
+            if (_dirtyEntities.Count > 0)
+            {
+                foreach (var entity in _dirtyEntities)
+                    _connection.Update(entity);
+            }
+            _dirtyEntities.Clear();
+        }
+
+        public void Delete(IEntity entity)
+        {
+            if (entity != null && entity.ID > 0) { }
+            {
+                _connection.Delete(entity);
+                if (_dirtyEntities.Contains(entity))
+                    _dirtyEntities.Remove(entity);
+            }
+        }
+
+
+        public void Delete<T>(int id) where T:IEntity
+        {
+            if (id > 0)
+                _connection.Delete<T>(id);
+        }
+
+
+        public void DeleteRange(IEnumerable<IEntity> entities)
+        {
+            var list = entities.ToList();
+            if (entities == null || !list.Any())
+                return;
+            foreach (var entity in list)
+                Delete(entity);
+        }
+
+        IEnumerable<T> IDbContext.Find<T>(Func<T, bool> predicate)
+        {
+            return _connection.GetList<T>().Where(predicate);
+        }
+
+        IEnumerable<T> IDbContext.Where<T>(object values)
+        {
+            var result = _connection.GetList<T>(values).ToList();
+            if (result.Count <= 0)
+                return result;
+            foreach (var item in result)
+            {
+                item.PropertyChanged += EntityPropertyChanged;
+                item._Context = this;
+            }
+            return result;
+        }
+
+        public int Count<T>()
+        {
+            return _connection.RecordCount<T>();
+        }
+    }
+}

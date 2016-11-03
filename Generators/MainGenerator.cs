@@ -21,6 +21,11 @@ namespace MyCodeGenerator.Generators
         private static List<View> GenerateViews(DatabaseSchema schema)
         {
             return schema.Views.Select(ViewGenerator.Generate).ToList();
+        }
+
+        private static List<Sp> GenerateSps(DatabaseSchema schema)
+        {
+            return schema.StoredProcedures.Select(SpGenerator.Generate).ToList();
         } 
 
         public static void Generate(DatabaseSchema schema)
@@ -28,12 +33,13 @@ namespace MyCodeGenerator.Generators
             var repos = GeneRepositories(schema);
             var bos = GenerateTables(schema);
             var views = GenerateViews(schema);
+            var sps = GenerateSps(schema);
             BoGenerator.GenerateReferenceLists(schema,bos);
-            Writer.WriteBase(repos,views);
+            Writer.WriteBase(repos,views,sps);
             Writer.WriteBos(bos);
             Writer.WriteRepositories(repos);
             Writer.WriteViews(views);
-
+            Writer.WriteStoredProcedures(sps);
         }
     }
 }

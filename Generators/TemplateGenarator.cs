@@ -20,7 +20,7 @@ namespace MyCodeGenerator.Generators
         private static string _referenceListTemplate;
         private static string _viewTemplate;
         private static string _autoPropertyTemplate;
-
+        private static string _procedureTemplate;
 
         private static readonly HashSet<string> NullableTypes = new HashSet<string>
         {
@@ -74,6 +74,16 @@ namespace MyCodeGenerator.Generators
                 .Replace("$name$", column.Name).ToString();
         }
 
+        public static string GenerateAutoPropertySp(DatabaseColumn column)
+        {
+            if (_autoPropertyTemplate == null)
+                _autoPropertyTemplate = ReadTemplate("autoProperty");
+            var builder = new StringBuilder(_autoPropertyTemplate);
+            var dataType = new DataType(column.DbDataType,column.DbDataType);
+            return builder.Replace("$dataType$", dataType.NetDataTypeCSharpName + (column.Nullable && NullableTypes.Contains(dataType.NetDataTypeCSharpName) ? "?" : ""))
+                .Replace("$name$", column.Name).ToString();
+        }
+
         public static string GenerateProperty(DatabaseColumn column,bool normal=false)
         {
             if (column.IsForeignKey && !normal)
@@ -97,8 +107,6 @@ namespace MyCodeGenerator.Generators
                     .Replace("$name$", column.Name)
                     .Replace("$fieldName$", Converters.Convert.PropertyNameToFieldName(column.Name)).ToString();
             }
-            
-           
         }
 
         public static string GenerateBo(DatabaseTable table)
@@ -123,11 +131,17 @@ namespace MyCodeGenerator.Generators
 
             var fieldsString = fields.Aggregate((c, n) => c + n);
             var propertiesString = properties.Aggregate((c, n) => c + n);
+            var columnString = new StringBuilder();
+            foreach (var col in table.Columns.Where(c => c.Name != "ID"))
+            {
+                columnString.AppendFormat("\n\t\t\t\t{{\"{0}\", {0}}},", col.Name);
+            }
 
             var builder = new StringBuilder(_boTemplate);
             return builder.Replace("$tableName$", table.Name)
                 .Replace("$fields$", fieldsString)
-                .Replace("$properties$", propertiesString).ToString();
+                .Replace("$properties$", propertiesString)
+                .Replace("$columnValueMappings$", columnString.ToString().TrimEnd(',')).ToString();
         }
 
 
@@ -138,6 +152,7 @@ namespace MyCodeGenerator.Generators
             if (_repositoryTemplate == null)
                 _repositoryTemplate = ReadTemplate("RepositoryImpl");
             var builder = new StringBuilder(_repositoryTemplate);
+
             return builder.Replace("$tableName$", table.Name).ToString();
         }
 
@@ -156,7 +171,25 @@ namespace MyCodeGenerator.Generators
             var builder = new StringBuilder(_viewTemplate);
             var properties = view.Columns.Select(GenerateAutoProperty).ToList();
             var propertyString = properties.Aggregate((c, n) => c + n);
-            return builder.Replace("$viewName$", view.Name+"Bo")
+            return builder.Replace("$viewName$", view.Name)
+                .Replace("$properties$", propertyString).ToString();
+        }
+
+        public static string GenerateStoredProcedure(DatabaseStoredProcedure proc)
+        {
+            if (_procedureTemplate == null)
+                _procedureTemplate = ReadTemplate("storedProcedure");
+            var builder = new StringBuilder(_procedureTemplate);
+            var sprocRunner = new DatabaseSchemaReader.Procedures.ResultSetReader(proc.DatabaseSchema);
+            sprocRunner.ExecuteProcedure(proc);
+            var resultsets = proc.ResultSets;
+            var propertyString = "";
+            if (resultsets.Count <= 0)
+                return builder.Replace("$name$", proc.Name)
+                    .Replace("$properties$", propertyString).ToString();
+            var properties = proc.ResultSets.First().Columns.Select(GenerateAutoPropertySp).ToList();
+            propertyString = properties.Aggregate((c, n) => c + n);
+            return builder.Replace("$name$", proc.Name)
                 .Replace("$properties$", propertyString).ToString();
         }
 

@@ -2,13 +2,12 @@
 using $projectNs$.Base.Core;
 using $projectNs$.Objects.Core;
 using Dapper;
+using System.Collections.Generic;
 
 namespace $projectNs$.Objects.Implementation
 {
     public class Entity:IEntity
     {
-
-        [Key]
         public int ID { get; set; }
         public IDbContext _context { get; set; }
 
@@ -22,5 +21,14 @@ namespace $projectNs$.Objects.Implementation
         }
 
         #endregion
+
+		#region Methods
+
+		public virtual Dictionary<string, object> GetColumns()
+        {
+            return null;
+        }
+
+		#endregion
     }
 }

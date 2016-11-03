@@ -60,8 +60,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Generators\RepositoryGenerator.cs" />
+    <Compile Include="Generators\SpGenerator.cs" />
     <Compile Include="Generators\ViewGenerator.cs" />
     <Compile Include="Models\Repository.cs" />
+    <Compile Include="Models\Sp.cs" />
     <Compile Include="Models\View.cs" />
     <Compile Include="Settings.cs" />
     <None Include="Templates\autoProperty.template">
@@ -77,6 +79,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Compile Include="Writers\Writer.cs" />
+    <None Include="Templates\storedProcedure.template">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Templates\view.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

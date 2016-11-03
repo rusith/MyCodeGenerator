@@ -9,5 +9,6 @@ namespace $projectNs$.Objects.Core
     {
         IDbContext _context { get; set; }
         int ID { get; set; }
+		Dictionary<string, object> GetColumns();
     }
 }

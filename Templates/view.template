@@ -1,6 +1,6 @@
 ﻿namespace $projectNs$.Objects.Views
 {
-    public class $viewName$
+    public class $viewName$Bo
     {
         #region Properties
 

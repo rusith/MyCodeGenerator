@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using $projectNs$.Base.Core;
+﻿using $projectNs$.Base.Core;
 using $projectNs$.Objects.Implementation;
 using $projectNs$.Repositories.Core;
-using $projectNs$.Objects.Core;
 
 namespace $projectNs$.Repositories.Implementation
 {
@@ -11,7 +8,7 @@ namespace $projectNs$.Repositories.Implementation
     {
         public $tableName$Repository(IDbContext context) : base(context)
         {
-            
+            TableName = "$tableName$";
         }
     }
 }

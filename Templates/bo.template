@@ -1,11 +1,9 @@
 using System;
-using Dapper;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace $projectNs$.Objects.Implementation
 {
-	[Table("$tableName$")]
 	public class $tableName$Bo : Entity
 	{
 		#region Fields
@@ -17,6 +15,17 @@ namespace $projectNs$.Objects.Implementation
 		$properties$
 
 		$referenceLists$
+
+		#endregion
+
+		#region Methods
+
+		public override Dictionary<string, object> GetColumns()
+        {
+            return new Dictionary<string, object> 
+			{$columnValueMappings$
+			};
+        }
 
 		#endregion
 	}

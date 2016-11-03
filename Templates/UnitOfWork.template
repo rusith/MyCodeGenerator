@@ -1,6 +1,10 @@
-﻿using $projectNs$.Base.Core;
+﻿using System;
+using $projectNs$.Base.Core;
 using $projectNs$.Repositories.Core;
 using $projectNs$.Repositories.Implementation;
+using $projectNs$.Objects.SPs;
+using System.Collections.Generic;
+using $projectNs$.Objects.Views;
 
 namespace $projectNs$.Base.Implementation
 {
@@ -10,8 +14,9 @@ namespace $projectNs$.Base.Implementation
 
 		$repositories$
 
-
 		$views$
+
+		$storedProcedures$
 
         public UnitOfWork()
         {

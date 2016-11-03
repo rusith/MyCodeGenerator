@@ -15,7 +15,9 @@ namespace $projectNs$.Repositories.Implementation
     {
         protected IDbContext Context;
 
-        public int Count => Context.Count<T>();
+		protected string TableName {get;set;}
+
+        public int Count => Context.Count(TableName);
 
         protected Repository(IDbContext context)
         {
@@ -24,47 +26,43 @@ namespace $projectNs$.Repositories.Implementation
 
         public T Get(int id)
         {
-            return Context.Get<T>(id);
+            return Context.Get<T>(id,TableName);
         }
 
         public IEnumerable<T> Get()
         {
-            return Context.Get<T>();
+            return Context.Get<T>(TableName);
         }
 
         public int? Add(T entity)
         {
-            return Context.Add(entity);
+            return Context.Add(entity,TableName,entity.GetColumns());
         }
 
-        public void AddRange(IEnumerable<T> entities)
+		public void Delete(T entity)
         {
-            Context.AddRange(entities);
-        }
-
-        public void Delete(T entity)
-        {
-            Context.Delete(entity);
+            Context.Delete<T>(entity,TableName);
         }
 
         public void Delete(int id)
         {
-            Context.Delete<T>(id);
+            Context.Delete<T>(id,TableName);
         }
 
         public void DeleteRange(IEnumerable<T> entities)
         {
-            Context.DeleteRange(entities);
+            Context.DeleteRange<T>(entities,TableName);
         }
 
         public IEnumerable<T> Find(Func<T, bool> predicate)
         {
-            return Context.Find(predicate);
+            return Context.Find(predicate,TableName);
         }
 
         public IEnumerable<T> Where(object propertyValues)
         {
-            return Context.Where<T>(propertyValues);
+            return Context.Where<T>(propertyValues,TableName);
         }
+
     }
 }

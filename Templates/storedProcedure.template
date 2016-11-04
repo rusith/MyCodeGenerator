@@ -1,0 +1,13 @@
+﻿using System;
+
+namespace $projectNs$.Objects.SPs
+{
+    public class $name$Bo
+    {
+        #region Properties
+
+		$properties$
+
+        #endregion
+    }
+}

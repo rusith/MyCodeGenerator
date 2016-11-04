@@ -8,7 +8,6 @@ using Dapper;
 using $projectNs$.Base.Core;
 using $projectNs$.Common;
 using $projectNs$.Objects.Core;
-using IndicoPackingCodeBase.Tools;
 using System.Configuration;
 using System.Collections.Generic;
 using $projectNs$.Objects.Views;
@@ -94,7 +93,7 @@ namespace $projectNs$.Base.Implementation
 
 			query = string.Format(query, tableName, cols.ToString().TrimEnd(','), values.ToString().TrimEnd(','));
 			
-            var res = entity == null ? 0 : (int)_connection.ExecuteScalar(query);
+            var res = entity == null ? 0 : Convert.ToInt32((decimal)_connection.ExecuteScalar(query));
 
 		    if (res <= 0 || entity == null)
                 return res;

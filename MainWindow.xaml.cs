@@ -62,10 +62,22 @@ namespace MyCodeGenerator
 
         }
 
-        private void OnRegenerateButtonClick(object sender, RoutedEventArgs e)
+
+        private void OnCleanButtonClick(object sender, RoutedEventArgs e)
         {
             TemplateGenarator.Clear();
-            Generate();
+            if (string.IsNullOrWhiteSpace(LocationInput.Text))
+            {
+                System.Windows.Forms.MessageBox.Show("Please select a root directory", "no root directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                var directory = new DirectoryInfo(LocationInput.Text);
+                if (!directory.Exists)
+                {
+                    System.Windows.Forms.MessageBox.Show("Directory not exists select a root directory", "no root directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
         }
     }
 }

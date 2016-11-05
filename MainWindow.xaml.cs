@@ -1,42 +1,94 @@
-﻿using System.IO;
+﻿using System;
+using System.Configuration;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using DatabaseSchemaReader;
+using DatabaseSchemaReader.DataSchema;
 using MyCodeGenerator.Generators;
+using WinForms = System.Windows.Forms;
 
 namespace MyCodeGenerator
 {
    
-    public partial class MainWindow : Window
+    public partial class MainWindow 
     {
-        private const string providername = "System.Data.SqlClient";
-        private string connectionString = "";
+        private const string Providername = "System.Data.SqlClient";
+        private string _connectionString = "";
 
         public MainWindow()
         {
             InitializeComponent();
+
+            LocationInput.Text = Properties.Settings.Default.RootFolder;
+            ProjectNameInput.Text = Properties.Settings.Default.ProjectName;
+            ProjectNamespaceInput.Text = Properties.Settings.Default.ProjectNamespace;
+            ConnectionString.Text = Properties.Settings.Default.ConnectionString;
         }
 
         private void Generate()
         {
-            if (ConnectionString.Text.Length < 1)
+            if (string.IsNullOrWhiteSpace(ConnectionString.Text))
+            {
+                WinForms.MessageBox.Show("Cannot Continue without a connection string", "No connection string", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
-
-            if (LocationInput.Text.Length < 1)
+            }
+            if (string.IsNullOrWhiteSpace(LocationInput.Text))
+            {
+                WinForms.MessageBox.Show("Cannot continue without root folder.", "No root folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
+            }
+            if (string.IsNullOrWhiteSpace(ProjectNameInput.Text))
+            {
+                WinForms.MessageBox.Show("Cannot continue without a project name.", "No project name", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(ProjectNamespaceInput.Text))
+            {
+                WinForms.MessageBox.Show("Cannot continue without a project namespace.", "No project namespace", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            connectionString = ConnectionString.Text;
+            _connectionString = ConnectionString.Text;
             var rootDirectory = new DirectoryInfo(LocationInput.Text);
-            if (rootDirectory.Exists == false)
-                rootDirectory.Create();
+            try
+            {
+                if (rootDirectory.Exists == false)
+                    rootDirectory.Create();
+            }
+            catch (Exception)
+            {
+                WinForms.MessageBox.Show("The root folder does not exists and, unable to create it", "unable to create root folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            var reader = new DatabaseReader(connectionString, providername);
-            var schema = reader.ReadAll();
+            DatabaseSchema schema = null;
+            try
+            {
+                var reader = new DatabaseReader(_connectionString, Providername);
+                schema = reader.ReadAll();
+            }
+            catch (Exception e)
+            {
+                WinForms.MessageBox.Show("Unable to read the database \n\n"+e.Message.Replace(Environment.NewLine,"\t"+Environment.NewLine),"Unable to read database", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+           
             Settings.RootDirectory = rootDirectory;
             Settings.ProjectNamespace = ProjectNamespaceInput.Text;
             Settings.ProjectName = ProjectNameInput.Text;
-            MainGenerator.Generate(schema);
+            try
+            {
+                MainGenerator.Generate(schema);
+                Properties.Settings.Default.RootFolder = LocationInput.Text;
+                Properties.Settings.Default.ProjectName = ProjectNameInput.Text;
+                Properties.Settings.Default.ProjectNamespace = ProjectNamespaceInput.Text;
+                Properties.Settings.Default.ConnectionString = ConnectionString.Text;
+            }
+            catch (Exception e)
+            {
+                WinForms.MessageBox.Show("Unable to generate code \n\n" + e.Message.Replace(Environment.NewLine, "\t" + Environment.NewLine), "Something went wrong", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void OnGenerateClick(object sender, RoutedEventArgs e)
@@ -52,30 +104,25 @@ namespace MyCodeGenerator
             LocationInput.Text = location;
         }
 
-        private void ConnectionString_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-        private void ProjectNameInput_Copy_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-
         private void OnCleanButtonClick(object sender, RoutedEventArgs e)
         {
             TemplateGenarator.Clear();
             if (string.IsNullOrWhiteSpace(LocationInput.Text))
-            {
                 System.Windows.Forms.MessageBox.Show("Please select a root directory", "no root directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
             else
             {
                 var directory = new DirectoryInfo(LocationInput.Text);
                 if (!directory.Exists)
-                {
                     System.Windows.Forms.MessageBox.Show("Directory not exists select a root directory", "no root directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                else
+                {
+                    Action<string> deleteFolder = pathPart =>
+                    {
+                        if (Directory.Exists(directory.FullName + "\\" + pathPart)) Directory.Delete(directory.FullName + "\\" + pathPart,true);
+                    };
+                    deleteFolder("base");
+                    deleteFolder("Objects");
+                    deleteFolder("Repositories");
                 }
             }
         }

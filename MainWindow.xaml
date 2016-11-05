@@ -5,19 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyCodeGenerator"
         mc:Ignorable="d"
-        Title="My Code Generator" Height="343.373" Width="661.5">
+        Title="My Code Generator" Height="356.282" Width="679.572">
     <Grid>
-        <TextBox x:Name="LocationInput" HorizontalAlignment="Left" Height="21" Margin="13,150,0,0"  TextWrapping="Wrap" Text="C:\Projects\IndicoPacking\IndicoPacking.DAL" VerticalAlignment="Top" Width="522"/>
+        <TextBox x:Name="LocationInput" HorizontalAlignment="Left" Height="21" Margin="13,150,0,0"  TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="522"/>
         <Button x:Name="BrowseButton" Content="Browse" HorizontalAlignment="Left" Height="21" Margin="547,150,0,0" VerticalAlignment="Top" Width="70" Click="OnBrowseButtonClick"/>
         <Label  Content="Root Folder" HorizontalAlignment="Left" Height="23" Margin="13,122,0,0" VerticalAlignment="Top" Width="88"/>
-        <TextBox x:Name="ConnectionString" HorizontalAlignment="Left" Height="65" Margin="13,213,0,0"  TextWrapping="Wrap" Text="Data Source=SIMBA\SQLEXPRESS;initial catalog=IndicoPacking;integrated security=True;multipleactiveresultsets=True;application name=EntityFramework" VerticalAlignment="Top" Width="634" TextChanged="ConnectionString_TextChanged"/>
+        <TextBox x:Name="ConnectionString" HorizontalAlignment="Left" Height="65" Margin="13,213,0,0"  TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="634"/>
         <Label  Content="Connection String" HorizontalAlignment="Left" Height="26" Margin="13,182,0,0" VerticalAlignment="Top" Width="147"/>
         <Button x:Name="GenerateButton" Content="Generate" HorizontalAlignment="Left" Height="19" Margin="536,283,0,0" VerticalAlignment="Top" Width="108" Click="OnGenerateClick"/>
-        <TextBox x:Name="ProjectNameInput" HorizontalAlignment="Left" Height="19" Margin="13,98,0,0"  TextWrapping="Wrap" Text="IndicoPacking" VerticalAlignment="Top" Width="522"/>
+        <TextBox x:Name="ProjectNameInput" HorizontalAlignment="Left" Height="19" Margin="13,98,0,0"  TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="522"/>
         <Label  Content="Project Name" HorizontalAlignment="Left" Height="23" Margin="13,70,0,0" VerticalAlignment="Top" Width="88"/>
-        <TextBox x:Name="ProjectNamespaceInput" HorizontalAlignment="Left" Height="20" Margin="13,45,0,0"  TextWrapping="Wrap" Text="IndicoPacking.DAL" VerticalAlignment="Top" Width="522" TextChanged="ProjectNameInput_Copy_TextChanged"/>
+        <TextBox x:Name="ProjectNamespaceInput" HorizontalAlignment="Left" Height="20" Margin="13,45,0,0"  TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="522"/>
         <Label  Content="Project Namespace" HorizontalAlignment="Left" Height="23" Margin="13,17,0,0" VerticalAlignment="Top" Width="120"/>
         <Button x:Name="CleanButton" Content="Clean" HorizontalAlignment="Left" Height="19" Margin="413,283,0,0" VerticalAlignment="Top" Width="108" Click="OnCleanButtonClick"/>
+        <Label x:Name="label1" Content="© Shanaka rusith" HorizontalAlignment="Left" Height="32" Margin="0,293,0,0" VerticalAlignment="Top" Width="120"/>
 
     </Grid>
 </Window>

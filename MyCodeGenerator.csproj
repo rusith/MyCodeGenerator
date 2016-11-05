@@ -78,6 +78,7 @@
     <None Include="Templates\RepositoryImpl.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Compile Include="Settings1.cs" />
     <Compile Include="Writers\Writer.cs" />
     <None Include="Templates\storedProcedure.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

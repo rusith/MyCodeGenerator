@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Configuration;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Forms;
 using DatabaseSchemaReader;
 using DatabaseSchemaReader.DataSchema;
@@ -21,10 +19,12 @@ namespace MyCodeGenerator
         {
             InitializeComponent();
 
-            LocationInput.Text = Properties.Settings.Default.RootFolder;
-            ProjectNameInput.Text = Properties.Settings.Default.ProjectName;
-            ProjectNamespaceInput.Text = Properties.Settings.Default.ProjectNamespace;
-            ConnectionString.Text = Properties.Settings.Default.ConnectionString;
+            Settings.Read();
+            LocationInput.Text=Settings.RootDirectory!=null? Settings.RootDirectory.FullName:"";
+            ProjectNamespaceInput.Text=Settings.ProjectNamespace;
+            ProjectNameInput.Text=Settings.ProjectName;
+            ConnectionString.Text=Settings.ConnectionString;
+            
         }
 
         private void Generate()
@@ -77,13 +77,13 @@ namespace MyCodeGenerator
             Settings.RootDirectory = rootDirectory;
             Settings.ProjectNamespace = ProjectNamespaceInput.Text;
             Settings.ProjectName = ProjectNameInput.Text;
+            Settings.ConnectionString = ConnectionString.Text;
+            Settings.Save();
+
             try
             {
                 MainGenerator.Generate(schema);
-                Properties.Settings.Default.RootFolder = LocationInput.Text;
-                Properties.Settings.Default.ProjectName = ProjectNameInput.Text;
-                Properties.Settings.Default.ProjectNamespace = ProjectNamespaceInput.Text;
-                Properties.Settings.Default.ConnectionString = ConnectionString.Text;
+              
             }
             catch (Exception e)
             {
@@ -108,12 +108,12 @@ namespace MyCodeGenerator
         {
             TemplateGenarator.Clear();
             if (string.IsNullOrWhiteSpace(LocationInput.Text))
-                System.Windows.Forms.MessageBox.Show("Please select a root directory", "no root directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                WinForms.MessageBox.Show("Please select a root directory", "no root directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             else
             {
                 var directory = new DirectoryInfo(LocationInput.Text);
                 if (!directory.Exists)
-                    System.Windows.Forms.MessageBox.Show("Directory not exists select a root directory", "no root directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    WinForms.MessageBox.Show("Directory not exists select a root directory", "no root directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 else
                 {
                     Action<string> deleteFolder = pathPart =>
@@ -123,6 +123,7 @@ namespace MyCodeGenerator
                     deleteFolder("base");
                     deleteFolder("Objects");
                     deleteFolder("Repositories");
+                    TemplateGenarator.Clear();
                 }
             }
         }

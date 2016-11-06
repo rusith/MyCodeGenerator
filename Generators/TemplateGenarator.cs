@@ -123,6 +123,7 @@ namespace MyCodeGenerator.Generators
             {
                 fields.Add(GenerateField(column));
                 properties.Add(GenerateProperty(column));
+               
                 if (!column.IsForeignKey)
                     continue;
                 fields.Add(GenerateField(column,true));

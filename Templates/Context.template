@@ -228,6 +228,17 @@ namespace $projectNs$.Base.Implementation
             return _connection.Query<T>(sql).ToList();
         }
 
+		public IEnumerable<T> SelectPage<T>(string tableName,int pageSize,int page) where T : class,IEntity
+		{
+			var query = @"SELECT * FROM {2}
+					  (SELECT ROW_NUMBER() OVER(ORDER BY [ID]) AS rowNumber,
+					  FROM [Bank]) AS countedTable WHERE
+					   rowNumber > ({0} * ({1} - 1))
+					   AND rowNumber <= (@pageSize * {1})";
+			query = string.Format(query,pageSize,page,tableName);
+			return _connection.Query<T>(query);
+		}
+
         private static string CreateWhere(object where)
         {
             var type = where.GetType();

@@ -16,6 +16,7 @@ namespace $projectNs$.Repositories.Implementation
         protected IDbContext Context;
 
 		protected string TableName {get;set;}
+		protected string PrimaryKeyName {get;set;}
 
         public int Count => Context.Count(TableName);
 
@@ -64,5 +65,9 @@ namespace $projectNs$.Repositories.Implementation
             return Context.Where<T>(propertyValues,TableName);
         }
 
+		public IEnumerable<T> GetPage(int pageNumber,int pageSize)
+		{
+			return Context.SelectPage<T>(TableName,pageSize,pageNumber);
+		}
     }
 }

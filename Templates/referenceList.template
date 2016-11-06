@@ -1,2 +1,2 @@
 ﻿
-		public List<$refTable$Bo> $refTable$sWhereThisIs$tableName$ => _context.Unit.$refTable$Repository.Where(new {$tableName$ = ID}).ToList();
+		public List<$refTable$Bo> $refTable$sWhereThisIs$tableName$ => _context.Unit.$refTable$Repository.Where(new {$tableName$ = $primaryKeyName$}).ToList();

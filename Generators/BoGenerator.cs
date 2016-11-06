@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using DatabaseSchemaReader.DataSchema;
 using MyCodeGenerator.Models;
+using DatabaseSchemaReader;
 
 namespace MyCodeGenerator.Generators
 {
@@ -11,7 +12,7 @@ namespace MyCodeGenerator.Generators
     {
         public static Bo Generate(DatabaseTable table)
         {
-            return new Bo() {Content = TemplateGenarator.GenerateBo(table),Name = table.Name};
+            return new Bo {Content = TemplateGenarator.GenerateBo(table),Name = table.Name};
         }
 
         public static void GenerateReferenceLists(DatabaseSchema schema, List<Bo> bos)
@@ -22,9 +23,7 @@ namespace MyCodeGenerator.Generators
                 var referencedTables = schema.Tables.Where(t => t.Columns.Count(c => c.IsForeignKey && c.ForeignKeyTableName == table.Name) > 0);
                 var builder = new StringBuilder();
                 foreach (var rt in referencedTables)
-                {
-                    builder.Append(TemplateGenarator.GenerateReferenceList(rt.Name, bo.Name));
-                }
+                    builder.Append(TemplateGenarator.GenerateReferenceList(rt.Name, bo.Name,rt.PrimaryKeyColumn.Name));
                 bo.Content = bo.Content.Replace("$referenceLists$", builder.ToString());
             }
         }

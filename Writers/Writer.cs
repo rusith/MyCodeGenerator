@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows.Documents;
+using DatabaseSchemaReader;
 using MyCodeGenerator.Generators;
 using MyCodeGenerator.Models;
 
@@ -53,9 +53,7 @@ namespace MyCodeGenerator.Writers
 
             var viewString = new StringBuilder();
             foreach (var view in views)
-            {
                 viewString.AppendFormat("\n\t\tpublic List<{0}Bo> {0}(object where=null){{return _context.QueryView<{0}Bo>(\"{0}\",where);}}", view.Name);
-            }
 
             var spString = new StringBuilder();
             foreach (var sp in sps)
@@ -63,7 +61,7 @@ namespace MyCodeGenerator.Writers
                 var parameters = sp.StoredProcedure.Arguments;
                 var parameterString = parameters.Aggregate("", (current, param) => current + string.Format("{0} {1}", param.DataType.NetDataTypeCSharpName, param.Name)+ ",");
                 var parameterPassString = parameters.Aggregate("", (current, param) => current + string.Format("'\"+{0}+\"'", param.Name) + ",");
-                spString.AppendFormat("\n\t\tpublic List<{0}Bo> {0}({1}){{ return _context.Query<{0}Bo>(\"EXEC [dbo].[{0}] {2}\");}}",sp.StoredProcedure.Name,parameterString.TrimEnd(','),parameterPassString.TrimEnd(','));
+                spString.AppendFormat("\n\t\tpublic List<{0}Bo> {0}({1}){{ return _context.Query<{0}Bo>(\"EXEC {0} {2}\");}}",sp.StoredProcedure.Name,parameterString.TrimEnd(','),parameterPassString.TrimEnd(','));
             }
 
             WriteFile(iunitofWork, TemplateGenarator.ReadTemplate("IUnitOfWork").Replace("$repositories$", repositoryStringCore.ToString()));
@@ -105,9 +103,7 @@ namespace MyCodeGenerator.Writers
             WriteFile(entity.FullName, TemplateGenarator.ReadTemplate("Entity"));
 
             foreach (var bo in bos)
-            {
-                WriteBo(bo,implementationDirectory.FullName);
-            }
+                WriteBo(bo, implementationDirectory.FullName);
         }
 
         private static void WriteRepository(Repository repo,string basePath)
@@ -132,9 +128,7 @@ namespace MyCodeGenerator.Writers
             WriteFile(repository,TemplateGenarator.ReadTemplate("Repository"));
 
             foreach (var repo in repos)
-            {
-                WriteRepository(repo,basedir);
-            }
+                WriteRepository(repo, basedir);
         }
 
         public static void WriteViews(List<View> views)
@@ -146,9 +140,9 @@ namespace MyCodeGenerator.Writers
             WriteFolderIfNotExists(viewdir);
 
             foreach (var view in views)
-            {
                 WriteView(view, viewdir);
-            }
+
+           
         }
 
         private static void WriteSp(Sp sp,string baseDir)
@@ -165,9 +159,7 @@ namespace MyCodeGenerator.Writers
             WriteFolderIfNotExists(spdir);
 
             foreach (var sp in sps)
-            {
                 WriteSp(sp, spdir);
-            }
         }
     }
 }

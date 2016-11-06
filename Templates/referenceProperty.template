@@ -5,5 +5,5 @@
 			{ 
 				return ($keyPropertyAccessor$<1) ? null : ($fieldName$ ?? ($fieldName$ = _context.Unit.$foreignTableName$Repository.Get($keyPropertyAccessor$)));
 			}
-			set { $fieldName$ = value; $freignKeyProperty$ = value.ID; NotifyPropertyChanged("$freignKeyProperty$");}
+			set { $fieldName$ = value; $freignKeyProperty$ = value.$foreignTablePropertyName$; NotifyPropertyChanged("$freignKeyProperty$");}
 		}

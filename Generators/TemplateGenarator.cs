@@ -56,13 +56,14 @@ namespace MyCodeGenerator.Generators
                 .Replace("$name$", Converters.Convert.PropertyNameToFieldName(column.Name)).ToString();
         }
 
-        public static string GenerateReferenceList(string refTableName,string currentTableaName)
+        public static string GenerateReferenceList(string refTableName,string currentTableaName,string currentTablePrimaryKey)
         {
             if (_referenceListTemplate == null)
                 _referenceListTemplate = ReadTemplate("referenceList");
             var builder = new StringBuilder(_referenceListTemplate);
             return builder.Replace("$refTable$", refTableName)
-                .Replace("$tableName$", currentTableaName).ToString();
+                .Replace("$tableName$", currentTableaName)
+                .Replace("$primaryKeyName$",currentTablePrimaryKey).ToString();
         }
 
         public static string GenerateAutoProperty(DatabaseColumn column)
@@ -96,7 +97,8 @@ namespace MyCodeGenerator.Generators
                     .Replace("$fieldName$", Converters.Convert.PropertyNameToFieldName("Obj" + column.Name))
                     .Replace("$foreignTableName$", column.ForeignKeyTableName)
                     .Replace("$freignKeyProperty$", column.Name).ToString()
-                    .Replace("$keyPropertyAccessor$", string.Format(column.Nullable ? "{0}.GetValueOrDefault()" : "{0}", column.Name));
+                    .Replace("$keyPropertyAccessor$", string.Format(column.Nullable ? "{0}.GetValueOrDefault()" : "{0}", column.Name))
+                    .Replace("$foreignTablePropertyName$",column.ForeignKeyTable.PrimaryKeyColumn.Name);
             }
             else
             {
@@ -119,7 +121,7 @@ namespace MyCodeGenerator.Generators
 
             var fields = new List<string>();
             var properties = new List<string>();
-            foreach (var column in table.Columns.Where(column => column.Name != "ID"))
+            foreach (var column in table.Columns)
             {
                 fields.Add(GenerateField(column));
                 properties.Add(GenerateProperty(column));
@@ -133,7 +135,7 @@ namespace MyCodeGenerator.Generators
             var fieldsString = fields.Aggregate((c, n) => c + n);
             var propertiesString = properties.Aggregate((c, n) => c + n);
             var columnString = new StringBuilder();
-            foreach (var col in table.Columns.Where(c => c.Name != "ID"))
+            foreach (var col in table.Columns)
             {
                 columnString.AppendFormat("\n\t\t\t\t{{\"{0}\", {0}}},", col.Name);
             }
@@ -154,7 +156,7 @@ namespace MyCodeGenerator.Generators
                 _repositoryTemplate = ReadTemplate("RepositoryImpl");
             var builder = new StringBuilder(_repositoryTemplate);
 
-            return builder.Replace("$tableName$", table.Name).ToString();
+            return builder.Replace("$tableName$", "["+table.SchemaOwner+"].["+table.Name+"]").ToString();
         }
 
         public static string GenerateRepositoryCore(DatabaseTable table)

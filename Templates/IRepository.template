@@ -15,5 +15,6 @@ namespace $projectNs$.Repositories.Core
         void Delete(int id);
         void DeleteRange(IEnumerable<T> ids);
         IEnumerable<T> Where(object values);
+		IEnumerable<T> GetPage(int pageNumber,int pageSize);
     }
 }

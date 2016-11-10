@@ -19,7 +19,7 @@ namespace $projectNs$.Base.Core
         void Delete<T>(int id,string tableName) where T: class,IEntity;
 		List<T> QueryView<T>(string viewname, object where = null) where T : class;
 		List<T> Query<T>(string sql) where T : class;
-		IEnumerable<T> SelectPage<T>(string tableName,int pageSize,int page) where T : class,IEntity
+		IEnumerable<T> SelectPage<T>(string tableName,int pageSize,int page) where T : class,IEntity;
 		IUnitOfWork Unit { get; set;}
     }
 }

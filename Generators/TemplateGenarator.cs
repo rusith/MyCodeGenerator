@@ -156,7 +156,7 @@ namespace MyCodeGenerator.Generators
                 _repositoryTemplate = ReadTemplate("RepositoryImpl");
             var builder = new StringBuilder(_repositoryTemplate);
 
-            return builder.Replace("$tableName$", "["+table.SchemaOwner+"].["+table.Name+"]").ToString();
+            return builder.Replace("$tableName$",table.Name).Replace("$tableFullName$", "["+table.SchemaOwner+"].["+table.Name+"]").ToString();
         }
 
         public static string GenerateRepositoryCore(DatabaseTable table)

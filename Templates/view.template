@@ -1,4 +1,6 @@
-﻿namespace $projectNs$.Objects.Views
+﻿using System;
+
+namespace $projectNs$.Objects.Views
 {
     public class $viewName$Bo
     {

@@ -29,6 +29,11 @@ namespace $projectNs$.Objects.Implementation
             return null;
         }
 
+		public virtual void Copy(IEntity en)
+		{
+			return;
+		}
+
 		#endregion
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using $projectNs$.Objects.Core;
 
 namespace $projectNs$.Objects.Implementation
 {
@@ -26,6 +27,14 @@ namespace $projectNs$.Objects.Implementation
 			{$columnValueMappings$
 			};
         }
+
+		public override void Copy(IEntity en)
+		{
+			var entity = en as $tableName$Bo;
+			if(entity == null)
+				return;
+			$copyProperties$
+		}
 
 		#endregion
 	}

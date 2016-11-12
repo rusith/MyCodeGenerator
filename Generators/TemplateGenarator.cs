@@ -121,11 +121,20 @@ namespace MyCodeGenerator.Generators
 
             var fields = new List<string>();
             var properties = new List<string>();
+            var copyValues = new List<string>();
             foreach (var column in table.Columns)
             {
                 fields.Add(GenerateField(column));
                 properties.Add(GenerateProperty(column));
-               
+                string fieldName;
+                if (column.IsForeignKey)
+                {
+                    fieldName = Converters.Convert.PropertyNameToFieldName("Obj" + column.Name);
+                    copyValues.Add(string.Format("\n\t\t\t{0} = entity.{0};", Converters.Convert.PropertyNameToFieldName(column.Name)));
+                }
+                else fieldName = Converters.Convert.PropertyNameToFieldName(column.Name);
+                copyValues.Add(string.Format("\n\t\t\t{0} = entity.{0};", fieldName));
+
                 if (!column.IsForeignKey)
                     continue;
                 fields.Add(GenerateField(column,true));
@@ -144,7 +153,8 @@ namespace MyCodeGenerator.Generators
             return builder.Replace("$tableName$", table.Name)
                 .Replace("$fields$", fieldsString)
                 .Replace("$properties$", propertiesString)
-                .Replace("$columnValueMappings$", columnString.ToString().TrimEnd(',')).ToString();
+                .Replace("$columnValueMappings$", columnString.ToString().TrimEnd(','))
+                .Replace("$copyProperties$", copyValues.Aggregate((c, n) => c + n)).ToString();
         }
 
 

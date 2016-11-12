@@ -8,7 +8,7 @@ namespace $projectNs$.Repositories.Implementation
     {
         public $tableName$Repository(IDbContext context) : base(context)
         {
-            TableName = "$tableName$";
+            TableName = "$tableFullName$";
         }
     }
 }

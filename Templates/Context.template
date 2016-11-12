@@ -38,7 +38,7 @@ namespace $projectNs$.Base.Implementation
             }
 		}
 
-        public  $projectName$Context()
+        internal  $projectName$Context()
         {
             _connection = new SqlConnection(ConfigurationManager.ConnectionStrings["$projectName$"].ConnectionString);
             _connection.Open();

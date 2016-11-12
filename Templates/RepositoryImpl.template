@@ -6,7 +6,7 @@ namespace $projectNs$.Repositories.Implementation
 {
     public class $tableName$Repository : Repository<$tableName$Bo>, I$tableName$Repository
     {
-        public $tableName$Repository(IDbContext context) : base(context)
+        internal $tableName$Repository(IDbContext context) : base(context)
         {
             TableName = "$tableFullName$";
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -20,8 +20,19 @@ namespace $projectNs$.Base.Implementation
 		private readonly HashSet<IEntity> _dirtyEntities;
         private readonly HashSet<IEntity> _entities; 
         private readonly IDbConnection _connection;
+        private readonly HashSet<EntityRecord> _addedEntities;
+        private readonly HashSet<IEntity> _deletedEntities;
 
 		public IUnitOfWork Unit { get; set; }
+
+		private RegisterEntity(IEntity entity)
+		{
+			if(entity == null)
+				return;
+			 _entities.Add(entity);
+            entity.PropertyChanged = EntityPropertyChanged;
+            entity._context = this;
+		}
 
         public  $projectName$Context()
         {
@@ -29,6 +40,8 @@ namespace $projectNs$.Base.Implementation
             _connection.Open();
             _dirtyEntities = new HashSet<IEntity>();
 			_entities=new HashSet<IEntity>();
+            _addedEntitie = new HashSet<EntityRecord>();
+            _deletedEntities = new HashSet<EntityRecord>();
         }
 
 
@@ -48,19 +61,16 @@ namespace $projectNs$.Base.Implementation
             }
             if (entity == null)
                 return null;
-            _entities.Add(entity);
-            entity.PropertyChanged += EntityPropertyChanged;
-            entity._context = this;
+            RegisterEntity(entity);
 
             return entity;
         }
 
        public IEnumerable<T> Get<T>(string tableName) where T : class, IEntity
        {
-            List<T> entities;
-            var localentities = _entities.OfType<T>().ToList();
             if (localentities.Count == Count(tableName))
-                return localentities;
+                return _entities.OfType<T>().ToList();
+            List<T> entities;
             try
             {
                 entities = _connection.Query<T>(string.Format("SELECT * FROM [dbo].[{0}]",tableName)).ToList();
@@ -72,17 +82,14 @@ namespace $projectNs$.Base.Implementation
             if (entities.Count <= 0)
                 return entities;
             foreach (var entity in entities)
-            {
-                _entities.Add(entity);
-                entity.PropertyChanged += EntityPropertyChanged;
-                entity._context = this;
-            }
+                RegisterEntity(entity);
             return entities;
         }
 
 		public int? Add(IEntity entity,string tableName,Dictionary<string,object> columns)
         {
-			var query = "INSERT INTO [dbo].[{0}] ({1}) VALUES({2}); SELECT SCOPE_IDENTITY()";
+        	_addedEntitie.Add(new EntityRecord { Entity = entity,TableName=tableName })
+			/*var query = "INSERT INTO [dbo].[{0}] ({1}) VALUES({2}); SELECT SCOPE_IDENTITY()";
 			var cols = new StringBuilder();
 			var values = new StringBuilder();
 			foreach(var item in columns)
@@ -96,11 +103,13 @@ namespace $projectNs$.Base.Implementation
             var res = entity == null ? 0 : Convert.ToInt32((decimal)_connection.ExecuteScalar(query));
 
 		    if (res <= 0 || entity == null)
-                return res;
-		    entity._context = this;
-		    entity.PropertyChanged += EntityPropertyChanged;
-		    _entities.Add(entity);
-
+                return res;*/
+            if(entity._context == null)
+            {
+            	entity._context = this;
+			    entity.PropertyChanged = EntityPropertyChanged;
+			    _entities.Add(entity);	
+            }
 		    return res;
         }
 
@@ -141,9 +150,10 @@ namespace $projectNs$.Base.Implementation
 
         public void Delete<T>(IEntity entity,string tableName) where T: class,IEntity
         {
-			if (entity != null && entity.ID > 0) { }
+			if (entity != null)
             {
-				Delete<T>(entity.ID,tableName);
+            	_deletedEntities.Add(new EntityRecord {Entity = entity,TableName = tableName });
+				//Delete<T>(entity.ID,tableName);
             }
         }
 
@@ -152,10 +162,12 @@ namespace $projectNs$.Base.Implementation
         {
             if (id > 0)
             {
-				var query = string.Format("DELETE [dbo].[{0}] WHERE ID = '{1}'",tableName,id);
-                _connection.Execute(query);
+				//var query = string.Format("DELETE [dbo].[{0}] WHERE ID = '{1}'",tableName,id);
+                //_connection.Execute(query);
                 var ent = _entities.OfType<T>().FirstOrDefault(t => t.ID == id);
-                _entities.Remove(ent);
+                _deletedEntities.Add(new EntityRecord {ID = id,TableName=tableName,Entity=ent});
+                //var ent = _entities.OfType<T>().FirstOrDefault(t => t.ID == id);
+                //_entities.Remove(ent);
             }
         }
 
@@ -177,11 +189,7 @@ namespace $projectNs$.Base.Implementation
 
             var entities= Get<T>(tableName).Where(predicate).ToList();
             foreach (var entity in entities)
-            {
-                entity._context = this;
-                entity.PropertyChanged += EntityPropertyChanged;
-                _entities.Add(entity);
-            }
+                RegisterEntity(entity);
             return entities;
         }
 
@@ -202,10 +210,7 @@ namespace $projectNs$.Base.Implementation
             if (result.Count <= 0)
                 return result;
             foreach (var item in result)
-            {
-                item.PropertyChanged += EntityPropertyChanged;
-                item._context = this;
-            }
+            	RegisterEntity(item);
             return result;
         }
 
@@ -236,7 +241,9 @@ namespace $projectNs$.Base.Implementation
 					   rowNumber > ({0} * ({1} - 1))
 					   AND rowNumber <= (@pageSize * {1})";
 			query = string.Format(query,pageSize,page,tableName);
-			return _connection.Query<T>(query);
+			var entities= _connection.Query<T>(query);
+			foreach (var entity in entities)
+            	RegisterEntity(entity);
 		}
 
         private static string CreateWhere(object where)
@@ -245,6 +252,17 @@ namespace $projectNs$.Base.Implementation
             var builder = new StringBuilder(" WHERE ");
             var condisions = type.GetProperties().Select(property => string.Format("[{0}] = '{1}'", property.Name, property.GetValue(@where).ToString().Replace("'","''"))).ToList();
             return builder.Append(condisions.Aggregate((c, n) => c + " AND " + n)).ToString();
+        }
+
+        private class EntityRecord
+        {
+        	public IEntity Entity { get;set; }
+        	public string TableName { get;set; }
+        	public int ID { get; set; }
+        	public static bool operator == (IEntity entity)
+        	{
+        		return entity == Entity;
+        	}
         }
     }
 }

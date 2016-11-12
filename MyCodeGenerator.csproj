@@ -138,9 +138,6 @@
     <None Include="Templates\field.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Templates\IEntity.template">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Templates\IUnitOfWork.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

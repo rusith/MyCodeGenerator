@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using $projectNs$.Base.Core;
-using $projectNs$.Objects.Core;
+using $projectNs$.Objects.Implementation;
 using $projectNs$.Repositories.Core;
 
 namespace $projectNs$.Repositories.Implementation
@@ -11,7 +11,7 @@ namespace $projectNs$.Repositories.Implementation
     /// like Get,Add etc..
     /// </summary>
     /// <typeparam name="T">the type of the Entity</typeparam>
-    public abstract class Repository<T> : IRepository<T> where T : class, IEntity
+    public abstract class Repository<T> : IRepository<T> where T : Entity
     {
         protected IDbContext Context;
 
@@ -30,7 +30,7 @@ namespace $projectNs$.Repositories.Implementation
             return Context.Get<T>(id,TableName);
         }
 
-        public IEnumerable<T> Get()
+        public List<T> Get()
         {
             return Context.Get<T>(TableName);
         }
@@ -55,17 +55,17 @@ namespace $projectNs$.Repositories.Implementation
             Context.DeleteRange<T>(entities,TableName);
         }
 
-        public IEnumerable<T> Find(Func<T, bool> predicate)
+        public List<T> Find(Func<T, bool> predicate)
         {
             return Context.Find(predicate,TableName);
         }
 
-        public IEnumerable<T> Where(object propertyValues)
+        public List<T> Where(object propertyValues)
         {
             return Context.Where<T>(propertyValues,TableName);
         }
 
-		public IEnumerable<T> GetPage(int pageNumber,int pageSize)
+		public List<T> GetPage(int pageNumber,int pageSize)
 		{
 			return Context.SelectPage<T>(TableName,pageSize,pageNumber);
 		}

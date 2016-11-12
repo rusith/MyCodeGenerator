@@ -1,15 +1,17 @@
 ﻿using System.ComponentModel;
 using $projectNs$.Base.Core;
-using $projectNs$.Objects.Core;
+using $projectNs$.Objects.Implementation;
 using Dapper;
 using System.Collections.Generic;
 
 namespace $projectNs$.Objects.Implementation
 {
-    public class Entity:IEntity
+    public abstract class Entity
     {
-        public int ID { get; set; }
-        public IDbContext _context { get; set; }
+        protected int _iD;
+        public virtual int ID => _iD;
+
+        internal IDbContext _context { get; set; }
 
         #region PropertyChange
 
@@ -24,12 +26,12 @@ namespace $projectNs$.Objects.Implementation
 
 		#region Methods
 
-		public virtual Dictionary<string, object> GetColumns()
+		internal virtual Dictionary<string, object> GetColumns()
         {
             return null;
         }
 
-		public virtual void Copy(IEntity en)
+		internal virtual void Copy(Entity en)
 		{
 			return;
 		}

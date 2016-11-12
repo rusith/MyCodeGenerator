@@ -107,7 +107,8 @@ namespace MyCodeGenerator.Generators
                 var builder = new StringBuilder(_propertyTemplate);
                 return builder.Replace("$dataType$", column.DataType.NetDataTypeCSharpName + (column.Nullable && NullableTypes.Contains(column.DataType.NetDataTypeCSharpName) ? "?" : ""))
                     .Replace("$name$", column.Name)
-                    .Replace("$fieldName$", Converters.Convert.PropertyNameToFieldName(column.Name)).ToString();
+                    .Replace("$fieldName$", Converters.Convert.PropertyNameToFieldName(column.Name))
+                    .Replace("$new$", column.Name == "ID" ? "new" : "").ToString();
             }
         }
 
@@ -124,8 +125,18 @@ namespace MyCodeGenerator.Generators
             var copyValues = new List<string>();
             foreach (var column in table.Columns)
             {
-                fields.Add(GenerateField(column));
-                properties.Add(GenerateProperty(column));
+                if (column.Name != "ID")
+                {
+                    fields.Add(GenerateField(column));
+                    properties.Add(GenerateProperty(column));
+                    if (column.IsForeignKey)
+                    {
+                        fields.Add(GenerateField(column, true));
+                        properties.Add(GenerateProperty(column, true));
+                    }
+
+                }
+
                 string fieldName;
                 if (column.IsForeignKey)
                 {
@@ -135,10 +146,6 @@ namespace MyCodeGenerator.Generators
                 else fieldName = Converters.Convert.PropertyNameToFieldName(column.Name);
                 copyValues.Add(string.Format("\n\t\t\t{0} = entity.{0};", fieldName));
 
-                if (!column.IsForeignKey)
-                    continue;
-                fields.Add(GenerateField(column,true));
-                properties.Add(GenerateProperty(column, true));
             }
 
             var fieldsString = fields.Aggregate((c, n) => c + n);

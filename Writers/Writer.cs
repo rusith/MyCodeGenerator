@@ -93,8 +93,8 @@ namespace MyCodeGenerator.Writers
             WriteFolderIfNotExists(objectsDirectory.FullName);
             WriteFolderIfNotExists(coreDirectory.FullName);
 
-            var ientity = new FileInfo(coreDirectory + @"\IEntity.cs");
-            WriteFile(ientity.FullName, TemplateGenarator.ReadTemplate("IEntity"));
+            //var ientity = new FileInfo(coreDirectory + @"\IEntity.cs");
+            //WriteFile(ientity.FullName, TemplateGenarator.ReadTemplate("IEntity"));
 
             var implementationDirectory = new DirectoryInfo(objectsDirectory + "\\Implementation");
             WriteFolderIfNotExists(implementationDirectory.FullName);

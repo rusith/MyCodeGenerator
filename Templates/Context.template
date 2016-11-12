@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using Dapper;
 using $projectNs$.Base.Core;
-using $projectNs$.Objects.Core;
+using $projectNs$.Objects.Implementation;
 using System.Configuration;
 using System.Text;
 
@@ -13,21 +13,21 @@ namespace $projectNs$.Base.Implementation
 {
     public class $projectName$Context : IDbContext
     {
-		private readonly HashSet<IEntity> _dirtyEntities;
-        private readonly HashSet<IEntity> _entities; 
+		private readonly HashSet<UpdateRecord> _dirtyEntities;
+        private readonly HashSet<Entity> _entities; 
         private readonly IDbConnection _connection;
         private readonly HashSet<EntityRecord> _addedEntities;
         private readonly HashSet<EntityRecord> _deletedEntities;
 
 		public IUnitOfWork Unit { get; set; }
 
-		private void RegisterEntity(IEntity entity)
+		private void RegisterEntity(Entity entity)
 		{
 			if(entity == null)
 				return;
 		    var t = entity.GetType().Name;
-		    var entities=_entities.Where(i => i.GetType().Name == t && i.ID == entity.ID);
-		    if (_entities.Count > 0)
+		    var entities=_entities.Where(i => i.GetType().Name == t && i.ID == entity.ID).ToList();
+		    if (entities.Count > 0)
 		        foreach (var ent in entities)
 		            ent.Copy(entity);
 		    else
@@ -42,13 +42,13 @@ namespace $projectNs$.Base.Implementation
         {
             _connection = new SqlConnection(ConfigurationManager.ConnectionStrings["$projectName$"].ConnectionString);
             _connection.Open();
-            _dirtyEntities = new HashSet<IEntity>();
-			_entities=new HashSet<IEntity>();
+            _dirtyEntities = new HashSet<UpdateRecord>();
+			_entities=new HashSet<Entity>();
             _addedEntities = new HashSet<EntityRecord>();
             _deletedEntities = new HashSet<EntityRecord>();
         }
 		
-		public T Get<T>(int id, string tableName) where T : class, IEntity
+		public T Get<T>(int id, string tableName) where T :  Entity
 		{
             T entity;
             var found = _entities.OfType<T>().Where(t => t.ID == id).ToList();
@@ -69,7 +69,7 @@ namespace $projectNs$.Base.Implementation
             return entity;
         }
 
-       public IEnumerable<T> Get<T>(string tableName) where T : class, IEntity
+       public List<T> Get<T>(string tableName) where T :  Entity
        {
            var localentities = _entities.OfType<T>().ToList();
             if (localentities.Count == Count(tableName))
@@ -90,7 +90,7 @@ namespace $projectNs$.Base.Implementation
             return entities;
         }
 
-		public int? Add(IEntity entity,string tableName,Dictionary<string,object> columns)
+		public int? Add(Entity entity,string tableName,Dictionary<string,object> columns)
 		{
 		    _addedEntities.Add(new EntityRecord {Entity = entity, TableName = tableName});
 			
@@ -101,7 +101,7 @@ namespace $projectNs$.Base.Implementation
 
         private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            var entity = sender as IEntity;
+            var entity = sender as Entity;
             if(entity== null || string.IsNullOrWhiteSpace(e.PropertyName))
                 return;
             var same = _dirtyEntities.Where(d => d.Entity.GetType().Name == entity.GetType().Name && entity.ID == d.Entity.ID).ToList();
@@ -182,7 +182,7 @@ namespace $projectNs$.Base.Implementation
 			_deletedEntities.Clear();
         }
         
-		public void Delete<T>(IEntity entity,string tableName) where T: class,IEntity
+		public void Delete<T>(Entity entity,string tableName) where T: Entity
         {
 		    if (entity == null)
                 return;
@@ -205,7 +205,7 @@ namespace $projectNs$.Base.Implementation
         }
 
 
-        public void Delete<T>(int id,string tableName) where T: class,IEntity
+        public void Delete<T>(int id,string tableName) where T: Entity
         {
             if (id <= 0)
                 return;
@@ -226,7 +226,7 @@ namespace $projectNs$.Base.Implementation
         }
 
 
-        public void DeleteRange<T>(IEnumerable<IEntity> entities,string tableName) where T: class,IEntity
+        public void DeleteRange<T>(IEnumerable<Entity> entities,string tableName) where T: Entity
         {
             var list = entities.ToList();
             if (entities == null || !list.Any())
@@ -235,11 +235,11 @@ namespace $projectNs$.Base.Implementation
                 Delete<T>(entity,tableName);
         }
 
-        public IEnumerable<T> Find<T>(Func<T, bool> predicate, string tableName) where T : class, IEntity
+        public List<T> Find<T>(Func<T, bool> predicate, string tableName) where T :  Entity
         {
             var localentities = _entities.OfType<T>().ToList();
             if (localentities.Count == Count(tableName))
-                return localentities.Where(predicate);
+                return localentities.Where(predicate).ToList();
 
             var entities= Get<T>(tableName).Where(predicate).ToList();
             foreach (var entity in entities)
@@ -247,7 +247,7 @@ namespace $projectNs$.Base.Implementation
             return entities;
         }
 
-        public IEnumerable<T> Where<T>(object values,string tableName) where T : class, IEntity
+        public List<T> Where<T>(object values,string tableName) where T :  Entity
         {
             const string query = "SELECT * FROM [dbo].[{0}] WHERE {1}";
 
@@ -287,7 +287,7 @@ namespace $projectNs$.Base.Implementation
             return _connection.Query<T>(sql).ToList();
         }
 
-		public IEnumerable<T> SelectPage<T>(string tableName,int pageSize,int page) where T : class,IEntity
+		public List<T> SelectPage<T>(string tableName,int pageSize,int page) where T : Entity
 		{
 			var query = @"SELECT * FROM {2} ORDER BY ID OFFSET(({1}-1)*{0}) ROWS FETCH NEXT {1} ROWS ONLY";
 			query = string.Format(query,pageSize,page,tableName);
@@ -330,7 +330,7 @@ namespace $projectNs$.Base.Implementation
                 }
             }
 
-            public IEntity Entity { get;set; }
+            public Entity Entity { get;set; }
         	public string TableName { get;set; }
         	public int ID { get; set; }
 

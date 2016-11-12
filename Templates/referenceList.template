@@ -1,2 +1,7 @@
-﻿
-		public List<$refTable$Bo> $refTable$sWhereThisIs$tableName$ => _context.Unit.$refTable$Repository.Where(new {$tableName$ = $primaryKeyName$}).ToList();
+﻿		/// <summary>
+		/// This class represents the $tableName$ table in the database 
+		/// </summary>
+		public List<$refTable$Bo> $refTable$sWhereThisIs$tableName$()
+		{
+			return _context.Unit.$refTable$Repository.Where(new {$tableName$ = $primaryKeyName$}).ToList();
+		}

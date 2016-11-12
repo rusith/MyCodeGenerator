@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using $projectNs$.Objects.Core;
+using $projectNs$.Objects.Implementation;
 
 namespace $projectNs$.Objects.Implementation
 {
+    /// <summary>
+    /// This class represents the $tableName$ table in the database 
+    /// </summary>
 	public class $tableName$Bo : Entity
 	{
 		#region Fields
@@ -21,14 +24,14 @@ namespace $projectNs$.Objects.Implementation
 
 		#region Methods
 
-		public override Dictionary<string, object> GetColumns()
+		internal override Dictionary<string, object> GetColumns()
         {
             return new Dictionary<string, object> 
 			{$columnValueMappings$
 			};
         }
 
-		public override void Copy(IEntity en)
+		internal override void Copy(Entity en)
 		{
 			var entity = en as $tableName$Bo;
 			if(entity == null)

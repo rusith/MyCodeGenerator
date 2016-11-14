@@ -106,7 +106,7 @@ namespace MyCodeGenerator.Generators
                 return builder.Replace("$dataType$", column.DataType.NetDataTypeCSharpName + (column.Nullable && NullableTypes.Contains(column.DataType.NetDataTypeCSharpName) ? "?" : ""))
                     .Replace("$name$", column.Name)
                     .Replace("$fieldName$", Converters.Convert.PropertyNameToFieldName(column.Name))
-                    .Replace("$new$", column.Name == "ID" ? "new" : "").ToString();
+                    .Replace("$primary$", column.IsPrimaryKey?"PrimaryKey = value;":"").ToString();
             }
         }
 
@@ -123,17 +123,17 @@ namespace MyCodeGenerator.Generators
             var copyValues = new List<string>();
             foreach (var column in table.Columns)
             {
-                if (column.Name != "ID")
-                {
-                    fields.Add(GenerateField(column));
-                    properties.Add(GenerateProperty(column));
-                    if (column.IsForeignKey)
-                    {
-                        fields.Add(GenerateField(column, true));
-                        properties.Add(GenerateProperty(column, true));
-                    }
 
+
+                fields.Add(GenerateField(column));
+                properties.Add(GenerateProperty(column));
+                if (column.IsForeignKey)
+                {
+                    fields.Add(GenerateField(column, true));
+                    properties.Add(GenerateProperty(column, true));
                 }
+
+                
 
                 string fieldName;
                 if (column.IsForeignKey)
@@ -154,12 +154,17 @@ namespace MyCodeGenerator.Generators
                 columnString.AppendFormat("\n\t\t\t\t{{\"{0}\", {0}}},", col.Name);
             }
 
+            var primeKey = "";
+            if (table.PrimaryKey != null)
+                primeKey = table.PrimaryKeyColumn.Name;
+
             var builder = new StringBuilder(_boTemplate);
             return builder.Replace("$tableName$", table.Name)
                 .Replace("$fields$", fieldsString)
                 .Replace("$properties$", propertiesString)
                 .Replace("$columnValueMappings$", columnString.ToString().TrimEnd(','))
-                .Replace("$copyProperties$", copyValues.Aggregate((c, n) => c + n)).ToString();
+                .Replace("$copyProperties$", copyValues.Aggregate((c, n) => c + n))
+                .Replace("$primaryKeyName$",primeKey).ToString();
         }
 
 
@@ -170,8 +175,12 @@ namespace MyCodeGenerator.Generators
             if (_repositoryTemplate == null)
                 _repositoryTemplate = ReadTemplate("RepositoryImpl");
             var builder = new StringBuilder(_repositoryTemplate);
+            var primeKey = "";
+            if (table.PrimaryKey != null)
+                primeKey = table.PrimaryKeyColumn.Name;
 
-            return builder.Replace("$tableName$",table.Name).Replace("$tableFullName$", "["+table.SchemaOwner+"].["+table.Name+"]").ToString();
+            return builder.Replace("$tableName$",table.Name).Replace("$primaryKeyName$",primeKey).Replace("$tableFullName$", "["+table.SchemaOwner+"].["+table.Name+"]").ToString();
+
         }
 
         public static string GenerateRepositoryCore(DatabaseTable table)

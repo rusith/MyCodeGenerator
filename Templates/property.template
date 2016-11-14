@@ -1,2 +1,2 @@
 
-		public $new$ $dataType$ $name$ { get { return $fieldName$; } set { $fieldName$ = value; NotifyPropertyChanged("$name$");}}
+		public $dataType$ $name$ { get { return $fieldName$; } set { $fieldName$ = value; $primary$ NotifyPropertyChanged("$name$");}}

@@ -43,6 +43,16 @@ namespace $projectNs$.Objects.Implementation
 		}
 
 		#endregion
+
+		#region Constructors
+		
+		public $tableName$Bo()
+		{
+			TableName = "$tableName$";
+			PrimaryKeyName = "$primaryKeyName$";
+		}
+
+		#endregion
 	}
 } 
 

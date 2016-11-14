@@ -8,8 +8,11 @@ namespace $projectNs$.Objects.Implementation
 {
     public abstract class Entity
     {
-        protected int _iD;
-        public virtual int ID => _iD;
+        protected string TableName { get; set; }
+
+        internal object PrimaryKey { get; set; }
+
+		internal string PrimaryKeyName { get; set; }
 
         internal IDbContext _context { get; set; }
 
@@ -34,6 +37,13 @@ namespace $projectNs$.Objects.Implementation
 		internal virtual void Copy(Entity en)
 		{
 			return;
+		}
+
+		internal bool AreSame(Entity en)
+		{
+			if(en.PrimaryKey == null && PrimaryKey == null)
+				return Equals(en);
+			return TableName == en.TableName && PrimaryKey == en.PrimaryKey;
 		}
 
 		#endregion

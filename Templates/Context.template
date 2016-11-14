@@ -25,8 +25,7 @@ namespace $projectNs$.Base.Implementation
 		{
 			if(entity == null)
 				return;
-		    var t = entity.GetType().Name;
-		    var entities=_entities.Where(i => i.GetType().Name == t && i.ID == entity.ID).ToList();
+		    var entities=_entities.Where(i => i.AreSame(entity)).ToList();
 		    if (entities.Count > 0)
 		        foreach (var ent in entities)
 		            ent.Copy(entity);
@@ -48,15 +47,18 @@ namespace $projectNs$.Base.Implementation
             _deletedEntities = new HashSet<EntityRecord>();
         }
 		
-		public T Get<T>(int id, string tableName) where T :  Entity
+		public T Get<T>(object key, string tableName, string primarykeyName) where T :  Entity
 		{
+			if(key == null)
+				return null;
+
             T entity;
-            var found = _entities.OfType<T>().Where(t => t.ID == id).ToList();
+            var found = _entities.OfType<T>().Where(t => t.PrimaryKey == key).ToList();
             if (found.Any())
                 return found.First();
             try
             {
-                entity = _connection.Query<T>(string.Format("SELECT TOP 1 * FROM {0} WHERE ID = '{1}'",tableName, id)).FirstOrDefault();
+                entity = _connection.Query<T>(string.Format("SELECT TOP 1 * FROM {0} WHERE {2} = '{1}'",tableName, key, primarykeyName)).FirstOrDefault();
             }
             catch (Exception e)
             {
@@ -104,7 +106,7 @@ namespace $projectNs$.Base.Implementation
             var entity = sender as Entity;
             if(entity== null || string.IsNullOrWhiteSpace(e.PropertyName))
                 return;
-            var same = _dirtyEntities.Where(d => d.Entity.GetType().Name == entity.GetType().Name && entity.ID == d.Entity.ID).ToList();
+            var same = _dirtyEntities.Where(d => d.Entity.AreSame(entity)).ToList();
             if (same.Count > 0)
             {
                 foreach (var sa in same)
@@ -115,7 +117,7 @@ namespace $projectNs$.Base.Implementation
             else
             {
                 var typeName = entity.GetType().Name;
-                var n = new UpdateRecord {Entity = entity, ID = entity.ID,TableName =typeName.Substring(0, typeName.Length - 2), UpdatedProperties = new HashSet<string> {e.PropertyName}};
+                var n = new UpdateRecord {Entity = entity, PrimaryKay = entity.PrimaryKey,PrimaryKeyName = entity.PrimaryKeyName, TableName =typeName.Substring(0, typeName.Length - 2), UpdatedProperties = new HashSet<string> {e.PropertyName}};
                 _dirtyEntities.Add(n);
             }
         }
@@ -137,11 +139,11 @@ namespace $projectNs$.Base.Implementation
 				foreach (var entity1 in _dirtyEntities)
 				{
 				    var entity = entity1;
-                    var id = entity.ID;
+                    var id = entity.PrimaryKay;
                     var values = entity.Entity.GetColumns().Where(c=>entity.UpdatedProperties.Contains(c.Key));
-                    var query = "UPDATE [dbo].[" + entity.TableName + "] SET {0} WHERE ID = " + id;
+                    var query = "UPDATE [dbo].[" + entity.TableName + "] SET {0} WHERE ["+entity.PrimaryKeyName+"] = " + id;
                     var setQuery = new StringBuilder();
-                    foreach (var item in values.Where(c => c.Key != "ID"))
+                    foreach (var item in values.Where(c => c.Key != entity.PrimaryKeyName))
                         setQuery.AppendFormat("{0} = '{1}',", item.Key, item.Value);
                     lastQuery.Append(string.Format(query, setQuery.ToString().TrimEnd(','))+";");
                 }
@@ -149,13 +151,15 @@ namespace $projectNs$.Base.Implementation
 
             if (_addedEntities.Count > 0)
             {
-                foreach (var entity in _addedEntities)
+                foreach (var entity1 in _addedEntities)
                 {
                     var query = "INSERT INTO [dbo].[{0}] ({1}) VALUES({2}); SELECT SCOPE_IDENTITY()";
                     var cols = new StringBuilder();
                     var values = new StringBuilder();
+                    
+                    var entity = entity1;
                     var columns = entity.Entity.GetColumns();
-                    foreach (var item in columns.Where(c=>c.Key!="ID"))
+                    foreach (var item in columns.Where(c=>c.Key!=entity.PrimaryKeyName))
                     {
                         cols.Append(item.Key + ",");
                         values.AppendFormat("'{0}',", item.Value.ToString().Replace("'", "''"));
@@ -168,7 +172,7 @@ namespace $projectNs$.Base.Implementation
 
 			if(_deletedEntities.Count > 0)
 			{
-				foreach (var query in _deletedEntities.Select(entity => string.Format("DELETE {0} WHERE ID = '{1}';",entity.TableName,entity.Entity?.ID ?? entity.ID)))
+				foreach (var query in _deletedEntities.Select(entity => string.Format("DELETE {0} WHERE {2} = '{1}';",entity.TableName,entity.Entity.PrimaryKey , entity.PrimaryKeyName)))
 				{
 				    lastQuery.Append(query);
 				}
@@ -182,13 +186,12 @@ namespace $projectNs$.Base.Implementation
 			_deletedEntities.Clear();
         }
         
-		public void Delete<T>(Entity entity,string tableName) where T: Entity
+		public void Delete<T>(Entity entity,string tableName,string primaryKeyName) where T: Entity
         {
 		    if (entity == null)
                 return;
 		   
-		    var t = entity.GetType();
-		    var ents = _addedEntities.Where(e => e.Entity.GetType() == t && e.Entity.ID == entity.ID).ToList();
+		    var ents = _addedEntities.Where(e => e.Entity.AreSame(entity)).ToList();
 		    if (ents.Count > 0)
 		    {
 		        foreach (var en in ents)
@@ -199,19 +202,19 @@ namespace $projectNs$.Base.Implementation
                 }
 		    }
 		    else
-		        _deletedEntities.Add(new EntityRecord {Entity = entity, TableName = tableName});
+		        _deletedEntities.Add(new EntityRecord {Entity = entity, TableName = tableName,PrimaryKay = entity.PrimaryKey,PrimaryKeyName = primaryKeyName });
 		    _entities.Remove(entity);
             entity.PropertyChanged -= EntityPropertyChanged;
         }
 
 
-        public void Delete<T>(int id,string tableName) where T: Entity
+        public void Delete<T>(object key,string tableName,string primaryKeyName) where T: Entity
         {
-            if (id <= 0)
+            if (key == null)
                 return;
-            var ent = _entities.OfType<T>().FirstOrDefault(t => t.ID == id);
+            var ent = _entities.OfType<T>().FirstOrDefault(t => t.PrimaryKey==key);
            
-            var ents = _addedEntities.Where(e => e.TableName == tableName && e.Entity.ID == id).ToList();
+            var ents = _addedEntities.Where(e => e.TableName==tableName && e.PrimaryKay==key).ToList();
             if (ents.Count > 0)
             {
                 foreach (var en in ents)
@@ -222,17 +225,17 @@ namespace $projectNs$.Base.Implementation
                 }
             }
             else
-                _deletedEntities.Add(new EntityRecord { ID = id, TableName = tableName, Entity = ent });
+                _deletedEntities.Add(new EntityRecord { PrimaryKay = key,PrimaryKeyName = primaryKeyName, TableName = tableName, Entity = ent });
         }
 
 
-        public void DeleteRange<T>(IEnumerable<Entity> entities,string tableName) where T: Entity
+        public void DeleteRange<T>(IEnumerable<Entity> entities,string tableName,string primaryKeyName) where T: Entity
         {
             var list = entities.ToList();
             if (entities == null || !list.Any())
                 return;
             foreach (var entity in list)
-                Delete<T>(entity,tableName);
+                Delete<T>(entity,tableName, primaryKeyName);
         }
 
         public List<T> Find<T>(Func<T, bool> predicate, string tableName) where T :  Entity
@@ -287,10 +290,10 @@ namespace $projectNs$.Base.Implementation
             return _connection.Query<T>(sql).ToList();
         }
 
-		public List<T> SelectPage<T>(string tableName,int pageSize,int page) where T : Entity
+		public List<T> SelectPage<T>(string tableName,int pageSize,int page,string primaryKeyName) where T : Entity
 		{
-			var query = @"SELECT * FROM {2} ORDER BY ID OFFSET(({1}-1)*{0}) ROWS FETCH NEXT {1} ROWS ONLY";
-			query = string.Format(query,pageSize,page,tableName);
+			var query = @"SELECT * FROM {2} ORDER BY {3} OFFSET(({1}-1)*{0}) ROWS FETCH NEXT {1} ROWS ONLY";
+			query = string.Format(query,pageSize,page,tableName, primaryKeyName);
 			var entities= _connection.Query<T>(query).ToList();
 			foreach (var entity in entities)
             	RegisterEntity(entity);
@@ -305,11 +308,12 @@ namespace $projectNs$.Base.Implementation
             return builder.Append(condisions.Aggregate((c, n) => c + " AND " + n)).ToString();
         }
 
+
         private class EntityRecord
         {
             private bool Equals(EntityRecord other)
             {
-                return Equals(Entity, other.Entity) && string.Equals(TableName, other.TableName) && ID == other.ID;
+                return Equals(Entity, other.Entity) && string.Equals(TableName, other.TableName) && PrimaryKay == other.PrimaryKay;
             }
 
             public override bool Equals(object obj)
@@ -325,14 +329,14 @@ namespace $projectNs$.Base.Implementation
                 {
                     var hashCode = Entity?.GetHashCode() ?? 0;
                     hashCode = (hashCode*397) ^ (TableName?.GetHashCode() ?? 0);
-                    hashCode = (hashCode*397) ^ ID;
                     return hashCode;
                 }
             }
 
             public Entity Entity { get;set; }
         	public string TableName { get;set; }
-        	public int ID { get; set; }
+			public string PrimaryKeyName { get;set; }
+        	public object PrimaryKay { get; set; }
 
         	public static bool operator == (EntityRecord cur,EntityRecord rec)
         	{

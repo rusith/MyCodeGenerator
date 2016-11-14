@@ -7,18 +7,18 @@ namespace $projectNs$.Base.Core
     public interface IDbContext : IDisposable
     {
         void SaveChanges();
-        T Get<T>(int id,string tableName) where T :  Entity;
+        T Get<T>(object key,string tableName, string primarykeyName) where T :  Entity;
         List<T> Get<T>(string tableName) where T :  Entity;
         int? Add(Entity entity,string tableName,Dictionary<string,object> columns);
-        void DeleteRange<T>(IEnumerable<Entity> entities, string tableName) where T: Entity;
+        void DeleteRange<T>(IEnumerable<Entity> entities, string tableName, string primaryKeyName) where T: Entity;
         List<T> Find<T>(Func<T, bool> predicate, string tableName) where T :  Entity;
 		List<T> Where<T>(object values,string tableName) where T :  Entity;
         int Count(string tableName);
-		void Delete<T>(Entity entity,string tableName) where T: Entity;
-        void Delete<T>(int id,string tableName) where T: Entity;
+		void Delete<T>(Entity entity,string tableName, string primaryKeyName) where T: Entity;
+        void Delete<T>(object key,string tableName, string primaryKeyName) where T: Entity;
 		List<T> QueryView<T>(string viewname, object where = null) where T : class;
 		List<T> Query<T>(string sql) where T : class;
-		List<T> SelectPage<T>(string tableName,int pageSize,int page) where T : Entity;
+		List<T> SelectPage<T>(string tableName,int pageSize,int page,string primaryKeyName) where T : Entity;
 		IUnitOfWork Unit { get; set;}
     }
 }

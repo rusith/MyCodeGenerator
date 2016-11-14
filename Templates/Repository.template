@@ -11,7 +11,7 @@ namespace $projectNs$.Repositories.Implementation
     /// like Get,Add etc..
     /// </summary>
     /// <typeparam name="T">the type of the Entity</typeparam>
-    public abstract class Repository<T> where T : Entity
+	public abstract class Repository<T> where T : Entity
     {
         protected IDbContext Context;
 
@@ -27,7 +27,7 @@ namespace $projectNs$.Repositories.Implementation
 
         public T Get(int id)
         {
-            return Context.Get<T>(id,TableName);
+            return Context.Get<T>(id,TableName,PrimaryKeyName);
         }
 
         public List<T> Get()
@@ -42,17 +42,17 @@ namespace $projectNs$.Repositories.Implementation
 
 		public void Delete(T entity)
         {
-            Context.Delete<T>(entity,TableName);
+            Context.Delete<T>(entity,TableName, PrimaryKeyName);
         }
 
         public void Delete(int id)
         {
-            Context.Delete<T>(id,TableName);
+            Context.Delete<T>(id,TableName, PrimaryKeyName);
         }
 
         public void DeleteRange(IEnumerable<T> entities)
         {
-            Context.DeleteRange<T>(entities,TableName);
+            Context.DeleteRange<T>(entities,TableName, PrimaryKeyName);
         }
 
         public List<T> Find(Func<T, bool> predicate)
@@ -67,7 +67,7 @@ namespace $projectNs$.Repositories.Implementation
 
 		public List<T> GetPage(int pageNumber,int pageSize)
 		{
-			return Context.SelectPage<T>(TableName,pageSize,pageNumber);
+			return Context.SelectPage<T>(TableName,pageSize,pageNumber,PrimaryKeyName);
 		}
     }
 }

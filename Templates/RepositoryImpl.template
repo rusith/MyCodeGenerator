@@ -9,6 +9,7 @@ namespace $projectNs$.Repositories.Implementation
         internal $tableName$Repository(IDbContext context) : base(context)
         {
             TableName = "$tableFullName$";
+			PrimaryKeyName = "$primaryKeyName$";
         }
     }
 }

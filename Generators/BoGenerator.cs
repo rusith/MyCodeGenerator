@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using DatabaseSchemaReader.DataSchema;
 using MyCodeGenerator.Models;
-using DatabaseSchemaReader;
 
 namespace MyCodeGenerator.Generators
 {
@@ -20,7 +19,7 @@ namespace MyCodeGenerator.Generators
             foreach (var bo in bos)
             {
                 var table = schema.Tables.FirstOrDefault(t => t.Name == bo.Name);
-                var referencedTables = schema.Tables.Where(t => t.Columns.Count(c => c.IsForeignKey && c.ForeignKeyTableName == table.Name) > 0);
+                var referencedTables = schema.Tables.Where(t => t.Columns.Count(c => table != null && (c.IsForeignKey && c.ForeignKeyTableName == table.Name)) > 0);
                 var builder = new StringBuilder();
                 foreach (var rt in referencedTables)
                     builder.Append(TemplateGenarator.GenerateReferenceList(rt.Name, bo.Name,rt.PrimaryKeyColumn.Name));

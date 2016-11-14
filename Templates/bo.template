@@ -18,11 +18,14 @@ namespace $projectNs$.Objects.Implementation
 		#region Properties
 		$properties$
 
+		#endregion
+
+		#region Methods
 		$referenceLists$
 
 		#endregion
 
-		#region Methods
+		#region Internal Methods
 
 		internal override Dictionary<string, object> GetColumns()
         {

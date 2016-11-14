@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using DatabaseSchemaReader;
@@ -71,9 +72,9 @@ namespace MyCodeGenerator
             }
             catch (Exception e)
             {
-                WinForms.MessageBox.Show("Unable to read the database \n\n"+e.Message.Replace(Environment.NewLine,"\t"+Environment.NewLine),"Unable to read database", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                WinForms.MessageBox.Show("Unable to read the database \n\n" + e.Message.Replace(Environment.NewLine, "\t" + Environment.NewLine), "Unable to read database", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-           
+
             Settings.RootDirectory = rootDirectory;
             Settings.ProjectNamespace = ProjectNamespaceInput.Text;
             Settings.ProjectName = ProjectNameInput.Text;
@@ -83,17 +84,18 @@ namespace MyCodeGenerator
             try
             {
                 MainGenerator.Generate(schema);
-              
+
             }
             catch (Exception e)
             {
                 WinForms.MessageBox.Show("Unable to generate code \n\n" + e.Message.Replace(Environment.NewLine, "\t" + Environment.NewLine), "Something went wrong", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
         }
 
         private void OnGenerateClick(object sender, RoutedEventArgs e)
         {
-           Generate();
+            Generate();
         }
 
         private void OnBrowseButtonClick(object sender, RoutedEventArgs e)

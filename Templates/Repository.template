@@ -11,7 +11,7 @@ namespace $projectNs$.Repositories.Implementation
     /// like Get,Add etc..
     /// </summary>
     /// <typeparam name="T">the type of the Entity</typeparam>
-    public abstract class Repository<T> : IRepository<T> where T : Entity
+    public abstract class Repository<T> where T : Entity
     {
         protected IDbContext Context;
 

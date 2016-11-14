@@ -46,8 +46,8 @@ namespace MyCodeGenerator.Writers
             var repoInitializeString = new StringBuilder();
             foreach (var repo in repositories)
             {
-                repositoryStringCore.AppendFormat("\n\t\tI{0}Repository {0}Repository {{ get; }}", repo.Name);
-                repositoryString.AppendFormat("\n\t\tpublic I{0}Repository {0}Repository {{ get; }}", repo.Name);
+                repositoryStringCore.AppendFormat("\n\t\t{0}Repository {0}Repository {{ get; }}", repo.Name);
+                repositoryString.AppendFormat("\n\t\tpublic {0}Repository {0}Repository {{ get; }}", repo.Name);
                 repoInitializeString.AppendFormat("\n\t\t\t{0}Repository = new {0}Repository(_context);", repo.Name);
             }
 
@@ -117,14 +117,12 @@ namespace MyCodeGenerator.Writers
             var basedir = Settings.RootDirectory + "\\Repositories";
             var core = basedir + "\\Core";
             var impl = basedir + "\\Implementation";
-            var irepository = core + "\\IRepository.cs";
             var repository = impl + "\\Repository.cs";
 
             WriteFolderIfNotExists(basedir);
             WriteFolderIfNotExists(core);
             WriteFolderIfNotExists(impl);
 
-            WriteFile(irepository, TemplateGenarator.ReadTemplate("IRepository"));
             WriteFile(repository,TemplateGenarator.ReadTemplate("Repository"));
 
             foreach (var repo in repos)

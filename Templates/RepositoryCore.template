@@ -2,7 +2,7 @@
 
 namespace $projectNs$.Repositories.Core
 {
-    public interface I$tableName$Repository:IRepository<$tableName$Bo>
+    public interface I$tableName$Repository
     {
 
     }

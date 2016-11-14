@@ -1,4 +1,6 @@
-﻿using System;
+﻿$topComment$
+
+using System;
 
 namespace $projectNs$.Objects.Views
 {

@@ -1,6 +1,7 @@
-﻿using System;
+﻿$topComment$
+
+using System;
 using $projectNs$.Base.Core;
-using $projectNs$.Repositories.Core;
 using $projectNs$.Repositories.Implementation;
 using $projectNs$.Objects.SPs;
 using System.Collections.Generic;
@@ -8,22 +9,49 @@ using $projectNs$.Objects.Views;
 
 namespace $projectNs$.Base.Implementation
 {
+
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly IDbContext _context;
+		#region Private fields
+        
+		private readonly IDbContext _context;
+		$repoFields$
 
+		#endregion
+		
+		#region Public Properties
+		
 		$repositories$
+
+		#endregion
+
+		#region Public Methods
+
+		#region Views
 
 		$views$
 
+		#endregion
+
+		#region Stored Procedures
+
 		$storedProcedures$
 
-        public UnitOfWork()
+		#endregion
+
+		#endregion
+
+        #region Public constructors
+
+		public UnitOfWork()
         {
             _context = new $projectName$Context();
 			_context.Unit = this;
-			$repoInit$
         }
+
+		#endregion
+
+		#region Public methods
 
         public void Complete()
         {
@@ -34,5 +62,7 @@ namespace $projectNs$.Base.Implementation
         {
             _context.Dispose();
         }
+
+		#endregion
     }
 }

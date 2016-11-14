@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using DatabaseSchemaReader;
 using MyCodeGenerator.Generators;
 using MyCodeGenerator.Models;
 
@@ -39,16 +38,15 @@ namespace MyCodeGenerator.Writers
             WriteFolderIfNotExists(core);
             WriteFolderIfNotExists(impl);
 
-
-
             var repositoryStringCore = new StringBuilder();
             var repositoryString = new StringBuilder();
-            var repoInitializeString = new StringBuilder();
+            var repositoryFieldString = new StringBuilder();
+
             foreach (var repo in repositories)
             {
                 repositoryStringCore.AppendFormat("\n\t\t{0}Repository {0}Repository {{ get; }}", repo.Name);
-                repositoryString.AppendFormat("\n\t\tpublic {0}Repository {0}Repository {{ get; }}", repo.Name);
-                repoInitializeString.AppendFormat("\n\t\t\t{0}Repository = new {0}Repository(_context);", repo.Name);
+                repositoryFieldString.AppendFormat("\n\t\tprivate {0}Repository {1};",repo.Name,Converters.Convert.PropertyNameToFieldName(repo.Name)+"Repository");
+                repositoryString.AppendFormat("\n\t\tpublic {1}Repository {1}Repository => {0} ?? ({0} = new {1}Repository(_context));", Converters.Convert.PropertyNameToFieldName(repo.Name) + "Repository",repo.Name);
             }
 
             var viewString = new StringBuilder();
@@ -69,7 +67,7 @@ namespace MyCodeGenerator.Writers
             WriteFile(context,TemplateGenarator.ReadTemplate("Context"));
             WriteFile(unitofWork,TemplateGenarator.ReadTemplate("UnitOfWork")
                 .Replace("$repositories$", repositoryString.ToString())
-                .Replace("$repoInit$",repoInitializeString.ToString())
+                .Replace("$repoFields$", repositoryFieldString.ToString())
                 .Replace("$views$",viewString.ToString())
                 .Replace("$storedProcedures$",spString.ToString()));
         }
@@ -92,9 +90,6 @@ namespace MyCodeGenerator.Writers
 
             WriteFolderIfNotExists(objectsDirectory.FullName);
             WriteFolderIfNotExists(coreDirectory.FullName);
-
-            //var ientity = new FileInfo(coreDirectory + @"\IEntity.cs");
-            //WriteFile(ientity.FullName, TemplateGenarator.ReadTemplate("IEntity"));
 
             var implementationDirectory = new DirectoryInfo(objectsDirectory + "\\Implementation");
             WriteFolderIfNotExists(implementationDirectory.FullName);

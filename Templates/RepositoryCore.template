@@ -1,4 +1,4 @@
-﻿using $projectNs$.Objects.Implementation;
+﻿$topComment$
 
 namespace $projectNs$.Repositories.Core
 {

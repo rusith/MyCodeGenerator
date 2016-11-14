@@ -1,4 +1,6 @@
-﻿using System;
+﻿$topComment$
+
+using System;
 using System.Collections.Generic;
 using $projectNs$.Base.Core;
 using $projectNs$.Objects.Implementation;
@@ -13,17 +15,35 @@ namespace $projectNs$.Repositories.Implementation
     /// <typeparam name="T">the type of the Entity</typeparam>
 	public abstract class Repository<T> where T : Entity
     {
+		#region Protected Fields
+
         protected IDbContext Context;
+
+		#endregion
+
+		#region Protected properties
 
 		protected string TableName {get;set;}
 		protected string PrimaryKeyName {get;set;}
 
+		#endregion
+
+		#region Public properties
+
         public int Count => Context.Count(TableName);
 
-        protected Repository(IDbContext context)
+		#endregion
+
+        #region Protected Constructors
+
+		protected Repository(IDbContext context)
         {
             Context = context;
         }
+
+		#endregion
+
+		#region Public Methods
 
         public virtual T Get(int id)
         {
@@ -69,5 +89,7 @@ namespace $projectNs$.Repositories.Implementation
 		{
 			return Context.SelectPage<T>(TableName,pageSize,pageNumber,PrimaryKeyName);
 		}
+
+		#endregion
     }
 }

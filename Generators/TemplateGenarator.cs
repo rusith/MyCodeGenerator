@@ -37,7 +37,9 @@ namespace MyCodeGenerator.Generators
             var templateFile = new FileInfo(Environment.CurrentDirectory+@"\Templates\" + templateName + ".template");
             var content = File.ReadAllText(templateFile.FullName);
             return content.Replace("$projectName$",Settings.ProjectName)
-                .Replace("$projectNs$",Settings.ProjectNamespace);
+                .Replace("$projectNs$",Settings.ProjectNamespace)
+                .Replace("$topComment$", "/*This code is a generated one , Change the source code of the generator if you want some change in this code*/"+
+                                "\nYou can find the source code of the code generator from here -> https://github.com/rusith/MyCodeGenerator*/");
         }
 
         public static string GenerateField(DatabaseColumn column,bool normal=false)

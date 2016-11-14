@@ -1,4 +1,6 @@
-﻿using System;
+﻿$topComment$
+
+using System;
 using System.Collections.Generic;
 using $projectNs$.Objects.Implementation;
 
@@ -6,6 +8,14 @@ namespace $projectNs$.Base.Core
 {
     public interface IDbContext : IDisposable
     {
+		#region Properties
+
+		IUnitOfWork Unit { get; set;}
+
+		#endregion
+
+		#region Methods
+
         void SaveChanges();
         T Get<T>(object key,string tableName, string primarykeyName) where T :  Entity;
         List<T> Get<T>(string tableName) where T :  Entity;
@@ -19,6 +29,7 @@ namespace $projectNs$.Base.Core
 		List<T> QueryView<T>(string viewname, object where = null) where T : class;
 		List<T> Query<T>(string sql) where T : class;
 		List<T> SelectPage<T>(string tableName,int pageSize,int page,string primaryKeyName) where T : Entity;
-		IUnitOfWork Unit { get; set;}
+		
+		#endregion
     }
 }

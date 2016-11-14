@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿$topComment$
+
+using System.ComponentModel;
 using $projectNs$.Base.Core;
 using $projectNs$.Objects.Implementation;
 using Dapper;
@@ -8,13 +10,21 @@ namespace $projectNs$.Objects.Implementation
 {
     public abstract class Entity
     {
+		#region Protected methods
+
         protected string TableName { get; set; }
+
+		#endregion
+
+		#region Internal methods
 
         internal object PrimaryKey { get; set; }
 
 		internal string PrimaryKeyName { get; set; }
 
         internal IDbContext Context { get; set; }
+
+		#endregion
 
         #region PropertyChange
 
@@ -27,7 +37,7 @@ namespace $projectNs$.Objects.Implementation
 
         #endregion
 
-		#region Methods
+		#region Internal Methods
 
 		internal virtual Dictionary<string, object> GetColumns()
         {
@@ -41,7 +51,7 @@ namespace $projectNs$.Objects.Implementation
 
 		internal bool AreSame(Entity en)
 		{
-			if(en.PrimaryKey == null && PrimaryKey == null)
+			if(PrimaryKey == null && en.PrimaryKey == null)
 				return Equals(en);
 			return TableName == en.TableName && PrimaryKey == en.PrimaryKey;
 		}

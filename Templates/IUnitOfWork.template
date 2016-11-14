@@ -1,12 +1,22 @@
-﻿using System;
+﻿$topComment$
+
+using System;
 using $projectNs$.Repositories.Implementation;
 
 namespace $projectNs$.Base.Core
 {
     public interface IUnitOfWork : IDisposable
     {
+		#region Repositories
+
 		$repositories$
 
+		#endregion
+
+		#region Methods
+
         void Complete();
+
+		#endregion
     }
 }

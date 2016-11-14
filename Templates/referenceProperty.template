@@ -3,7 +3,7 @@
 		{ 
 			get 
 			{ 
-				return ($keyPropertyAccessor$<1) ? null : ($fieldName$ ?? ($fieldName$ = _context.Unit.$foreignTableName$Repository.Get($keyPropertyAccessor$)));
+				return ($keyPropertyAccessor$<1) ? null : ($fieldName$ ?? ($fieldName$ = Context.Unit.$foreignTableName$Repository.Get($keyPropertyAccessor$)));
 			}
 			set { $fieldName$ = value; $freignKeyProperty$ = value.$foreignTablePropertyName$; NotifyPropertyChanged("$freignKeyProperty$");}
 		}

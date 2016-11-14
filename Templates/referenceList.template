@@ -3,5 +3,5 @@
 		/// </summary>
 		public List<$refTable$Bo> $refTable$sWhereThisIs$tableName$()
 		{
-			return _context.Unit.$refTable$Repository.Where(new {$tableName$ = $primaryKeyName$}).ToList();
+			return Context.Unit.$refTable$Repository.Where(new {$tableName$ = $primaryKeyName$}).ToList();
 		}

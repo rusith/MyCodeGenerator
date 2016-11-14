@@ -33,7 +33,7 @@ namespace $projectNs$.Base.Implementation
 		    {
                 _entities.Add(entity);
                 entity.PropertyChanged += EntityPropertyChanged;
-                entity._context = this;
+                entity.Context = this;
             }
 		}
 
@@ -96,7 +96,7 @@ namespace $projectNs$.Base.Implementation
 		{
 		    _addedEntities.Add(new EntityRecord {Entity = entity, TableName = tableName});
 			
-            if(entity._context == null)
+            if(entity.Context == null)
             	RegisterEntity(entity);
 		    return null;
         }

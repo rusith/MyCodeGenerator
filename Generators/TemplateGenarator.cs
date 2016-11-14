@@ -179,8 +179,15 @@ namespace MyCodeGenerator.Generators
             if (table.PrimaryKey != null)
                 primeKey = table.PrimaryKeyColumn.Name;
 
-            return builder.Replace("$tableName$",table.Name).Replace("$primaryKeyName$",primeKey).Replace("$tableFullName$", "["+table.SchemaOwner+"].["+table.Name+"]").ToString();
-
+            var t= builder.Replace("$tableName$",table.Name).Replace("$primaryKeyName$",primeKey).Replace("$tableFullName$", "["+table.SchemaOwner+"].["+table.Name+"]").ToString();
+            if (primeKey == "")
+            {
+                t = t.Replace("$overrideMethods$",
+                    "public override " + table.Name + "Bo Get(int id){ return null; }" +
+                    "\n\t\tpublic override void Delete(int id) { }");
+            }
+            else t = t.Replace("$overrideMethods$", "");
+            return t;
         }
 
         public static string GenerateRepositoryCore(DatabaseTable table)

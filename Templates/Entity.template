@@ -14,7 +14,7 @@ namespace $projectNs$.Objects.Implementation
 
 		internal string PrimaryKeyName { get; set; }
 
-        internal IDbContext _context { get; set; }
+        internal IDbContext Context { get; set; }
 
         #region PropertyChange
 

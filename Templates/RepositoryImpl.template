@@ -11,5 +11,6 @@ namespace $projectNs$.Repositories.Implementation
             TableName = "$tableFullName$";
 			PrimaryKeyName = "$primaryKeyName$";
         }
+	    $overrideMethods$
     }
 }

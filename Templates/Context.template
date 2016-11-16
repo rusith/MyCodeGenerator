@@ -22,6 +22,7 @@ namespace $projectNs$.Base.Implementation
         private readonly IDbConnection _connection;
         private readonly HashSet<EntityRecord> _addedEntities;
         private readonly HashSet<EntityRecord> _deletedEntities;
+        private readonly HashSet<EntityReference> _references; 
 
 		#endregion
 
@@ -41,6 +42,7 @@ namespace $projectNs$.Base.Implementation
 			_entities=new HashSet<Entity>();
             _addedEntities = new HashSet<EntityRecord>();
             _deletedEntities = new HashSet<EntityRecord>();
+			_references =new HashSet<EntityReference>();
         }
 
 		#endregion
@@ -106,10 +108,16 @@ namespace $projectNs$.Base.Implementation
             }
         }
 
-
         private class UpdateRecord:EntityRecord
         {
             public HashSet<string> UpdatedProperties { get; set; }
+        }
+
+        private class EntityReference
+        {
+            public Entity Parent { get; set; }
+            public Entity Child { get; set; }
+            public string ColumnName { get; set; }
         }
 
 		#endregion
@@ -125,9 +133,7 @@ namespace $projectNs$.Base.Implementation
             if (same.Count > 0)
             {
                 foreach (var sa in same)
-                {
                     sa.UpdatedProperties.Add(e.PropertyName);
-                }
             }
             else
             {
@@ -206,43 +212,64 @@ namespace $projectNs$.Base.Implementation
 		public void SaveChanges()
         {
             var lastQuery = new StringBuilder();
-            if (_dirtyEntities.Count > 0)
-            {
-				foreach (var entity1 in _dirtyEntities)
-				{
-				    var entity = entity1;
-                    var id = entity.PrimaryKay;
-                    var values = entity.Entity.GetColumns().Where(c=>entity.UpdatedProperties.Contains(c.Key));
-                    var query = "UPDATE [dbo].[" + entity.TableName + "] SET {0} WHERE ["+entity.PrimaryKeyName+"] = " + id;
-                    var setQuery = new StringBuilder();
-                    foreach (var item in values.Where(c => c.Key != entity.PrimaryKeyName))
-                        setQuery.AppendFormat("{0} = '{1}',", item.Key, item.Value);
-                    lastQuery.Append(string.Format(query, setQuery.ToString().TrimEnd(','))+";");
-                }
-            }
+           
 
             if (_addedEntities.Count > 0)
             {
                 foreach (var entity1 in _addedEntities)
                 {
+                    var entity = entity1;
                     var query = "INSERT INTO [dbo].[{0}] ({1}) VALUES({2}); SELECT SCOPE_IDENTITY()";
+
                     var cols = new StringBuilder();
                     var values = new StringBuilder();
-                    
-                    var entity = entity1;
+
+
                     var columns = entity.Entity.GetColumns();
-                    foreach (var item in columns.Where(c=>c.Key!=entity.PrimaryKeyName))
+                    foreach (var item in columns.Where(c => c.Key != entity.PrimaryKeyName))
                     {
                         cols.Append(item.Key + ",");
                         values.AppendFormat("'{0}',", item.Value.ToString().Replace("'", "''"));
                     }
 
-                    query = string.Format(query, entity.TableName, cols.ToString().TrimEnd(','), values.ToString().TrimEnd(','))+";";
-                    lastQuery.Append(query);
+                    query = string.Format(query, entity.TableName, cols.ToString().TrimEnd(','), values.ToString().TrimEnd(',')) + ";";
+
+                    if (_references.Any(r => r.Parent == entity.Entity))
+                    {
+                        var parentId = _connection.ExecuteScalar<int>(query);
+                        if (parentId <= 0)
+                            continue;
+                        foreach (var re in _references.Where(r => r.Parent == entity.Entity))
+                        {
+                            var prop = re.Child.GetType().GetProperty(re.ColumnName);
+                            if(prop==null)
+                                continue;
+                            prop.SetValue(re.Child, parentId, null);
+                        }
+                    }
+                    else
+                    {
+                        lastQuery.Append(query);
+                    }
                 }
             }
 
-			if(_deletedEntities.Count > 0)
+            if (_dirtyEntities.Count > 0)
+            {
+                foreach (var entity1 in _dirtyEntities)
+                {
+                    var entity = entity1;
+                    var id = entity.PrimaryKay;
+                    var values = entity.Entity.GetColumns().Where(c => entity.UpdatedProperties.Contains(c.Key));
+                    var query = "UPDATE [dbo].[" + entity.TableName + "] SET {0} WHERE [" + entity.PrimaryKeyName + "] = " + id;
+                    var setQuery = new StringBuilder();
+                    foreach (var item in values.Where(c => c.Key != entity.PrimaryKeyName))
+                        setQuery.AppendFormat("{0} = '{1}',", item.Key, item.Value);
+                    lastQuery.Append(string.Format(query, setQuery.ToString().TrimEnd(',')) + ";");
+                }
+            }
+
+            if (_deletedEntities.Count > 0)
 			{
 				foreach (var query in _deletedEntities.Select(entity => string.Format("DELETE {0} WHERE {2} = '{1}';",entity.TableName,entity.Entity.PrimaryKey , entity.PrimaryKeyName)))
 				{
@@ -380,6 +407,15 @@ namespace $projectNs$.Base.Implementation
             return builder.Append(condisions.Aggregate((c, n) => c + " AND " + n)).ToString();
         }
 
-		#endregion
+        #endregion
+
+        #region Internal methods
+
+        public void AddEntityReference(Entity parent,Entity child,string column)
+        {
+            _references.Add(new EntityReference {Child = child, Parent = parent, ColumnName = column});
+        }
+
+        #endregion
     }
 }

@@ -66,6 +66,9 @@
     <None Include="Templates\autoProperty.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Templates\BoCollection.template">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Templates\referenceList.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

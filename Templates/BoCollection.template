@@ -1,0 +1,46 @@
+﻿$topComment$
+
+using System.Collections.Generic;
+using $projectNs$.Objects.Implementation;
+
+namespace $projectNs$.Base.Implementation
+{
+    public class BoCollection<T> : List<T> where T : Entity
+    {
+		#region Fields
+
+        private readonly Entity _parent;
+        private readonly bool _fromRefernceList;
+        private readonly string _column;
+
+		#endregion
+
+		#region Internal constructors
+
+        internal BoCollection(Entity parent,IEnumerable<T>collection,string mappingColumn )
+        {
+            _parent = parent;
+            _fromRefernceList = true;
+            AddRange(collection);
+            _column = mappingColumn;
+        }
+
+		internal BoCollection(IEnumerable<T> collection)
+		{
+			AddRange(collection);
+		}
+
+		#endregion
+
+		#region Public methods
+
+        public new void Add(T entity)
+        {
+            if (_fromRefernceList && entity.Context!=null && entity.Context==_parent.Context)
+                _parent.Context.AddEntityReference(_parent, entity, _column);
+            base.Add(entity);
+        }
+
+		#endregion
+    }
+}

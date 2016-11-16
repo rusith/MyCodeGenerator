@@ -254,6 +254,19 @@ namespace $projectNs$.Base.Implementation
                 }
             }
 
+			
+            foreach (var entity in _references)
+            {
+                if (_entities.Contains(entity.Parent))
+                {
+                    var parentId = entity.Parent.PrimaryKey;
+                    var prop = entity.Child.GetType().GetProperty(entity.ColumnName);
+                    if (prop == null)
+                        continue;
+                    prop.SetValue(entity.Child, parentId, null);
+                }
+            }
+
             if (_dirtyEntities.Count > 0)
             {
                 foreach (var entity1 in _dirtyEntities)

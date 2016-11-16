@@ -55,9 +55,9 @@ namespace $projectNs$.Repositories.Implementation
             return Context.Get<T>(TableName);
         }
 
-        public int? Add(T entity)
+        public T Add(T entity)
         {
-            return Context.Add(entity,TableName,entity.GetColumns());
+            return Context.Add(entity,TableName,entity.GetColumns()) as T;
         }
 
 		public void Delete(T entity)

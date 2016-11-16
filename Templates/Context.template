@@ -192,7 +192,7 @@ namespace $projectNs$.Base.Implementation
             return entities;
         }
 
-		public int? Add(Entity entity,string tableName,Dictionary<string,object> columns)
+		public Entity Add(Entity entity,string tableName,Dictionary<string,object> columns)
 		{
 		    _addedEntities.Add(new EntityRecord {Entity = entity, TableName = tableName});
 			
@@ -351,7 +351,7 @@ namespace $projectNs$.Base.Implementation
 
         public List<T> Where<T>(object values,string tableName) where T :  Entity
         {
-            const string query = "SELECT * FROM [dbo].[{0}] WHERE {1}";
+            const string query = "SELECT * FROM {0} WHERE {1}";
 
             var whereBulder = new StringBuilder();
             var objectType = values.GetType();

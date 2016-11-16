@@ -19,7 +19,7 @@ namespace $projectNs$.Base.Core
         void SaveChanges();
         T Get<T>(object key,string tableName, string primarykeyName) where T :  Entity;
         List<T> Get<T>(string tableName) where T :  Entity;
-        int? Add(Entity entity,string tableName,Dictionary<string,object> columns);
+        Entity Add(Entity entity,string tableName,Dictionary<string,object> columns);
         void DeleteRange<T>(IEnumerable<Entity> entities, string tableName, string primaryKeyName) where T: Entity;
         List<T> Find<T>(Func<T, bool> predicate, string tableName) where T :  Entity;
 		List<T> Where<T>(object values,string tableName) where T :  Entity;

@@ -32,7 +32,7 @@ namespace MyCodeGenerator.Writers
             var iunitofWork = core + "\\IUnitOfWork.cs";
             var context = impl + "\\" + Settings.ProjectName + "Context.cs";
             var unitofWork = impl + "\\UnitOfWork.cs";
-
+            var boCollection = impl + "\\BoCollection.cs";
 
             WriteFolderIfNotExists(basedir);
             WriteFolderIfNotExists(core);
@@ -70,6 +70,7 @@ namespace MyCodeGenerator.Writers
                 .Replace("$repoFields$", repositoryFieldString.ToString())
                 .Replace("$views$",viewString.ToString())
                 .Replace("$storedProcedures$",spString.ToString()));
+            WriteFile(boCollection,TemplateGenarator.ReadTemplate("BoCollection"));
         }
 
         private static void WriteBo(Bo bo,string basePath)

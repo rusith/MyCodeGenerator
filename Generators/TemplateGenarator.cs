@@ -38,7 +38,7 @@ namespace MyCodeGenerator.Generators
             var content = File.ReadAllText(templateFile.FullName);
             return content.Replace("$projectName$",Settings.ProjectName)
                 .Replace("$projectNs$",Settings.ProjectNamespace)
-                .Replace("$topComment$", "/*This code is a generated one , Change the source code of the generator if you want some change in this code*/"+
+                .Replace("$topComment$", "/*This code is a generated one , Change the source code of the generator if you want some change in this code"+
                                 "\nYou can find the source code of the code generator from here -> https://github.com/rusith/MyCodeGenerator*/");
         }
 

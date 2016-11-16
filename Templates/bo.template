@@ -3,7 +3,7 @@ $topComment$
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using $projectNs$.Objects.Implementation;
+using $projectNs$.Base.Implementation;
 
 namespace $projectNs$.Objects.Implementation
 {

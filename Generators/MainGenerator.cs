@@ -43,7 +43,14 @@ namespace MyCodeGenerator.Generators
                 var referencedTables = schema.Tables.Where(t => t.Columns.Count(c => table != null && (c.IsForeignKey && c.ForeignKeyTableName == table.Name)) > 0);
                 var builder = new StringBuilder();
                 foreach (var rt in referencedTables)
-                    builder.Append(TemplateGenarator.GenerateReferenceList(rt.Name, bo.Name, rt.PrimaryKeyColumn.Name));
+                {
+                    var fk = rt.ForeignKeys.FirstOrDefault(f => f.ReferencedTable(schema) == table);
+                    if(fk == null)
+                        return;
+                    
+                    builder.Append(TemplateGenarator.GenerateReferenceList(rt.Name, bo.Name, fk.ReferencedColumns(schema).First()));
+                }
+                    
                 bo.Content = bo.Content.Replace("$referenceLists$", builder.ToString());
             }
         }
@@ -67,8 +74,6 @@ namespace MyCodeGenerator.Generators
         {
             return schema.StoredProcedures.Select(GenerateSp).ToList();
         }
-
-
 
         public static void Generate(DatabaseSchema schema)
         {

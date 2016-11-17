@@ -228,8 +228,11 @@ namespace $projectNs$.Base.Implementation
                     var columns = entity.Entity.GetColumns();
                     foreach (var item in columns.Where(c => c.Key != entity.Entity.PrimaryKeyName))
                     {
-                        cols.Append(item.Key + ",");
-                        values.AppendFormat("'{0}',", item.Value.ToString().Replace("'", "''"));
+                        cols.Append("["+item.Key + "],");
+                        if (item.Value == null)
+                            values.Append("NULL,");
+                        else
+                            values.AppendFormat("'{0}',", item.Value.ToString().Replace("'", "''"));
                     }
 
                     query = string.Format(query, entity.TableName, cols.ToString().TrimEnd(','), values.ToString().TrimEnd(',')) + ";";

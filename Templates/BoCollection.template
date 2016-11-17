@@ -17,11 +17,12 @@ namespace $projectNs$.Base.Implementation
 
 		#region Internal constructors
 
-        internal BoCollection(Entity parent,IEnumerable<T>collection,string mappingColumn )
+        internal BoCollection(Entity parent,List<T>collection,string mappingColumn )
         {
             _parent = parent;
             _fromRefernceList = true;
-            AddRange(collection);
+			if(collection!=null && collection.Count>0 )
+                AddRange(collection);
             _column = mappingColumn;
         }
 

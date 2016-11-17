@@ -1,7 +1,7 @@
-﻿		/// <summary>
-		/// This class represents the $tableName$ table in the database 
-		/// </summary>
-		public BoCollection<$refTable$Bo> $refTable$sWhereThisIs$tableName$()
+﻿		public BoCollection<$refTable$Bo> $refTable$sWhereThisIs$tableName$()
 		{
-			 return Context == null ? null : new BoCollection<$refTable$Bo>(this, Context.Unit.$refTable$Repository.Where(new {$tableName$ = $primaryKeyName$}), "$tableName$");
+			 List<UserBo> list;
+			 try { list = Context.Unit.$refTable$Repository.Where(new {$tableName$ = $primaryKeyName$}); }catch(Exception){ list = null; } 
+			 return Context == null ? null : new BoCollection<$refTable$Bo>(this, list, "$tableName$");
 		}
+

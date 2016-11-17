@@ -198,7 +198,7 @@ namespace $projectNs$.Base.Implementation
 			
             if(entity.Context == null)
             	RegisterEntity(entity);
-		    return null;
+		    return entity;
         }
 
         public void Dispose()
@@ -219,14 +219,14 @@ namespace $projectNs$.Base.Implementation
                 foreach (var entity1 in _addedEntities)
                 {
                     var entity = entity1;
-                    var query = "INSERT INTO [dbo].[{0}] ({1}) VALUES({2}); SELECT SCOPE_IDENTITY()";
+                    var query = "INSERT INTO {0} ({1}) VALUES({2}); SELECT SCOPE_IDENTITY()";
 
                     var cols = new StringBuilder();
                     var values = new StringBuilder();
 
 
                     var columns = entity.Entity.GetColumns();
-                    foreach (var item in columns.Where(c => c.Key != entity.PrimaryKeyName))
+                    foreach (var item in columns.Where(c => c.Key != entity.Entity.PrimaryKeyName))
                     {
                         cols.Append(item.Key + ",");
                         values.AppendFormat("'{0}',", item.Value.ToString().Replace("'", "''"));
@@ -296,6 +296,7 @@ namespace $projectNs$.Base.Implementation
 			_addedEntities.Clear();
 			_dirtyEntities.Clear();
 			_deletedEntities.Clear();
+			_references.Clear();
         }
         
 		public void Delete<T>(Entity entity,string tableName,string primaryKeyName) where T: Entity

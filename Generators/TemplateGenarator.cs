@@ -123,6 +123,7 @@ namespace MyCodeGenerator.Generators
             var fields = new List<string>();
             var properties = new List<string>();
             var copyValues = new List<string>();
+            copyValues.Add(string.Format("\n\t\t\tBusinessObjectState = entity.BusinessObjectState;"));
             foreach (var column in table.Columns)
             {
 
@@ -134,8 +135,6 @@ namespace MyCodeGenerator.Generators
                     fields.Add(GenerateField(column, true));
                     properties.Add(GenerateProperty(column, true));
                 }
-
-                
 
                 string fieldName;
                 if (column.IsForeignKey)

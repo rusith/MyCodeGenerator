@@ -1,6 +1,7 @@
-﻿		public BoCollection<$refTable$Bo> $refTable$sWhereThisIs$tableName$()
+﻿		
+		public BoCollection<$refTable$Bo> $refTable$sWhereThisIs$tableName$()
 		{
-			 List<UserBo> list;
+			 List<$refTable$Bo> list;
 			 try { list = Context.Unit.$refTable$Repository.Where(new {$tableName$ = $primaryKeyName$}); }catch(Exception){ list = null; } 
 			 return Context == null ? null : new BoCollection<$refTable$Bo>(this, list, "$tableName$");
 		}

@@ -8,21 +8,42 @@ using System.Collections.Generic;
 
 namespace $projectNs$.Objects.Implementation
 {
+	public enum EntityState
+    {
+        Added = 1,
+        New = 2,
+        Deleted =3,
+        Retrived = 4
+    }
+
     public abstract class Entity
     {
-		#region Protected methods
+		#region Protected Properties
 
         protected string TableName { get; set; }
 
-		#endregion
+        protected bool SouldNotifyPropertyChanges { get { return BusinessObjectState == EntityState.Retrived; } }
 
-		#region Internal methods
+        #endregion
+
+        #region Internal constructor
+
+        internal Entity()
+        {
+            BusinessObjectState = EntityState.New;
+        }
+
+        #endregion
+
+        #region Internal Properties
 
         internal object PrimaryKey { get; set; }
 
 		internal string PrimaryKeyName { get; set; }
 
         internal IDbContext Context { get; set; }
+
+        internal EntityState BusinessObjectState { get; set; }
 
 		#endregion
 

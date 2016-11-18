@@ -49,7 +49,7 @@ namespace $projectNs$.Base.Implementation
 
 		#region private methods
 
-		private void RegisterEntity(Entity entity)
+		private void RegisterEntity(Entity entity, EntityState state)
 		{
 			if(entity == null)
 				return;
@@ -62,6 +62,7 @@ namespace $projectNs$.Base.Implementation
                 _entities.Add(entity);
                 entity.PropertyChanged += EntityPropertyChanged;
                 entity.Context = this;
+				entity.BusinessObjectState = state;
             }
 		}
 
@@ -166,8 +167,7 @@ namespace $projectNs$.Base.Implementation
             }
             if (entity == null)
                 return null;
-            RegisterEntity(entity);
-
+            RegisterEntity(entity,  EntityState.Retrived);
             return entity;
         }
 
@@ -188,7 +188,7 @@ namespace $projectNs$.Base.Implementation
             if (entities.Count <= 0)
                 return entities;
             foreach (var entity in entities)
-                RegisterEntity(entity);
+				 RegisterEntity(entity, EntityState.Retrived);
             return entities;
         }
 
@@ -197,7 +197,8 @@ namespace $projectNs$.Base.Implementation
 		    _addedEntities.Add(new EntityRecord {Entity = entity, TableName = tableName});
 			
             if(entity.Context == null)
-            	RegisterEntity(entity);
+				RegisterEntity(entity, EntityState.Added);
+            	
 		    return entity;
         }
 
@@ -212,8 +213,6 @@ namespace $projectNs$.Base.Implementation
 		public void SaveChanges()
         {
             var lastQuery = new StringBuilder();
-           
-
             if (_addedEntities.Count > 0)
             {
                 foreach (var entity1 in _addedEntities)
@@ -321,6 +320,8 @@ namespace $projectNs$.Base.Implementation
 		        _deletedEntities.Add(new EntityRecord {Entity = entity, TableName = tableName,PrimaryKay = entity.PrimaryKey,PrimaryKeyName = primaryKeyName });
 		    _entities.Remove(entity);
             entity.PropertyChanged -= EntityPropertyChanged;
+
+			entity.BusinessObjectState = EntityState.Deleted;
         }
 
 
@@ -338,11 +339,13 @@ namespace $projectNs$.Base.Implementation
                     _entities.Remove(en.Entity);
                     en.Entity.PropertyChanged -= EntityPropertyChanged;
                     _addedEntities.Remove(en);
+					en.Entity.BusinessObjectState = EntityState.Deleted;
                 }
             }
             else
                 _deletedEntities.Add(new EntityRecord { PrimaryKay = key,PrimaryKeyName = primaryKeyName, TableName = tableName, Entity = ent });
-        }
+			
+		}
 
 
         public void DeleteRange<T>(IEnumerable<Entity> entities,string tableName,string primaryKeyName) where T: Entity
@@ -362,7 +365,7 @@ namespace $projectNs$.Base.Implementation
 
             var entities= Get<T>(tableName).Where(predicate).ToList();
             foreach (var entity in entities)
-                RegisterEntity(entity);
+				RegisterEntity(entity, EntityState.Retrived);
             return entities;
         }
 
@@ -383,7 +386,8 @@ namespace $projectNs$.Base.Implementation
             if (result.Count <= 0)
                 return result;
             foreach (var item in result)
-            	RegisterEntity(item);
+				RegisterEntity(item, EntityState.Retrived);
+            	
             return result;
         }
 
@@ -412,7 +416,8 @@ namespace $projectNs$.Base.Implementation
 			query = string.Format(query,pageSize,page,tableName, primaryKeyName);
 			var entities= _connection.Query<T>(query).ToList();
 			foreach (var entity in entities)
-            	RegisterEntity(entity);
+				RegisterEntity(entity, EntityState.Retrived);
+            	
 		    return entities;
 		}
 

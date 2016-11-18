@@ -279,7 +279,12 @@ namespace $projectNs$.Base.Implementation
                     var query = "UPDATE [dbo].[" + entity.TableName + "] SET {0} WHERE [" + entity.PrimaryKeyName + "] = " + id;
                     var setQuery = new StringBuilder();
                     foreach (var item in values.Where(c => c.Key != entity.PrimaryKeyName))
-                        setQuery.AppendFormat("{0} = '{1}',", item.Key, item.Value);
+                    {
+                        if (item.Value == null)
+                            setQuery.AppendFormat("{0} = NULL,", item.Key);
+                        else
+                            setQuery.AppendFormat("{0} = '{1}',", item.Key, item.Value);
+                    }
                     lastQuery.Append(string.Format(query, setQuery.ToString().TrimEnd(',')) + ";");
                 }
             }

@@ -123,12 +123,12 @@ namespace $projectNs$.Base.Implementation
 
 		#endregion
 
-		#region Private methods
+#region Private methods
 
 		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             var entity = sender as Entity;
-            if(entity== null || string.IsNullOrWhiteSpace(e.PropertyName))
+            if (entity == null || string.IsNullOrWhiteSpace(e.PropertyName))
                 return;
             var same = _dirtyEntities.Where(d => d.Entity.AreSame(entity)).ToList();
             if (same.Count > 0)
@@ -138,8 +138,7 @@ namespace $projectNs$.Base.Implementation
             }
             else
             {
-                var typeName = entity.GetType().Name;
-                var n = new UpdateRecord {Entity = entity, PrimaryKay = entity.PrimaryKey,PrimaryKeyName = entity.PrimaryKeyName, TableName =typeName.Substring(0, typeName.Length - 2), UpdatedProperties = new HashSet<string> {e.PropertyName}};
+                var n = new UpdateRecord { Entity = entity, PrimaryKay = entity.PrimaryKey, PrimaryKeyName = entity.PrimaryKeyName, TableName = entity.TableName, UpdatedProperties = new HashSet<string> { e.PropertyName } };
                 _dirtyEntities.Add(n);
             }
         }
@@ -404,9 +403,14 @@ namespace $projectNs$.Base.Implementation
 
 		public List<T> QueryView<T>(string viewname,object where=null ) where T : class
         {
+            if(string.IsNullOrWhiteSpace(viewname))
+                return new List<T>();
+
             var queryBuilder = new StringBuilder("SELECT * FROM [dbo][" + viewname + "]");
+
             if (where != null)
                 queryBuilder.Append(CreateWhere(where));
+
             return _connection.Query<T>(queryBuilder.ToString()).ToList();
         }
 
@@ -417,9 +421,13 @@ namespace $projectNs$.Base.Implementation
 
 		public List<T> SelectPage<T>(string tableName,int pageSize,int page,string primaryKeyName) where T : Entity
 		{
-			var query = @"SELECT * FROM {2} ORDER BY {3} OFFSET(({1}-1)*{0}) ROWS FETCH NEXT {1} ROWS ONLY";
-			query = string.Format(query,pageSize,page,tableName, primaryKeyName);
-			var entities= _connection.Query<T>(query).ToList();
+            if(string.IsNullOrWhiteSpace(tableName) || pageSize <1 || page<1 || string.IsNullOrWhiteSpace(primaryKeyName))
+                return new List<T>();
+
+            var query = @"SELECT * FROM {2} ORDER BY {3} OFFSET(({1}-1)*{0}) ROWS FETCH NEXT {1} ROWS ONLY";
+			query = string.Format(query, pageSize, page, tableName, primaryKeyName);
+
+            var entities= _connection.Query<T>(query).ToList();
 			foreach (var entity in entities)
 				RegisterEntity(entity, EntityState.Retrived);
             	
@@ -430,8 +438,19 @@ namespace $projectNs$.Base.Implementation
         {
             var type = where.GetType();
             var builder = new StringBuilder(" WHERE ");
-            var condisions = type.GetProperties().Select(property => string.Format("[{0}] = '{1}'", property.Name, property.GetValue(@where).ToString().Replace("'","''"))).ToList();
-            return builder.Append(condisions.Aggregate((c, n) => c + " AND " + n)).ToString();
+            var properties = type.GetProperties();
+
+            if (!properties.Any())
+                return "";
+            var conditions = new List<string>();
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(@where);
+                const string con = "[{0}] = {1}";
+                conditions.Add(value == null ? string.Format(con, property.Name, "NULL") 
+                    : string.Format(con, property.Name, "'" + value + "'"));
+            }
+            return builder.Append(conditions.Aggregate((c, n) => c + " AND " + n)).ToString();
         }
 
         #endregion

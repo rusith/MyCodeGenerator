@@ -1,0 +1,49 @@
+﻿$topComment$
+
+
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Runtime.InteropServices;
+using $projectNs$.Base.Core;
+
+namespace $projectNs$.Base.Implementation
+{
+    internal class ConnectionManager : IConnectionManager
+    {
+        private static readonly string _connectionString = ConfigurationManager.ConnectionStrings["$projectName$"].ConnectionString;
+        private static IConnectionManager _manager;
+        private static IDbConnection _connection;
+        private static HashSet<IDbContext> _subscribers; 
+
+        private ConnectionManager() {}
+
+        public static IConnectionContainer GetConnection(IDbContext context)
+        {
+            if(_manager==null)
+                _manager= new ConnectionManager();
+            if (_connection == null)
+                _connection= new SqlConnection(_connectionString);
+
+            var container = new ConnectionContainer(_manager) {Connection =_connection,Context = context};
+            if(_subscribers==null)
+                _subscribers= new HashSet<IDbContext>();
+            _subscribers.Add(context);
+            return container;
+        }
+
+        public void Unsubscribe(IDbContext context)
+        {
+            if (_subscribers == null)
+                return;
+            if (_subscribers.Contains(context))
+                _subscribers.Remove(context);
+            if (_subscribers.Count >= 1)
+                return;
+            _connection.Close();
+            _connection.Dispose();
+            _connection = null;
+        }
+    }
+}

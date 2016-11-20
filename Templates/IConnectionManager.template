@@ -1,0 +1,9 @@
+﻿$topComment$
+
+namespace $projectNs$.Base.Core
+{
+    internal interface IConnectionManager
+    {
+        void Unsubscribe(IDbContext context);
+    }
+}

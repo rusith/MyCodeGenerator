@@ -1,0 +1,25 @@
+﻿$topComment$
+
+using System.Data;
+using $projectNs$.Base.Core;
+
+namespace $projectNs$.Base.Implementation
+{
+    internal class ConnectionContainer : IConnectionContainer
+    {
+        private readonly IConnectionManager _connectionManager;
+        public IDbContext Context { get; set; }
+
+        internal ConnectionContainer(IConnectionManager connectionManager)
+        {
+            _connectionManager = connectionManager;
+        }
+
+        public IDbConnection Connection { get; set; }
+
+        public void Close(IDbContext context)
+        {
+            _connectionManager.Unsubscribe(Context);
+        }
+    }
+}

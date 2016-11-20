@@ -1,0 +1,13 @@
+﻿$topComment$
+
+using System.Data;
+
+namespace $projectNs$.Base.Core
+{
+    internal interface IConnectionContainer
+    {
+        IDbConnection Connection { get; set; }
+        IDbContext Context { get; set; }
+        void Close(IDbContext context);
+    }
+}

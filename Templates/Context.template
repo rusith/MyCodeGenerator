@@ -466,7 +466,7 @@ namespace $projectNs$.Base.Implementation
 
         #region Internal methods
 
-        public void AddEntityReference(Entity parent,Entity child,string column)
+        private void AddEntityReference(Entity parent,Entity child,string column)
         {
             _references.Add(new EntityReference {Child = child, Parent = parent, ColumnName = column});
         }

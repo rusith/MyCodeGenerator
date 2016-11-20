@@ -9,12 +9,12 @@ namespace MyCodeGenerator.Generators
 {
     public class MainGenerator
     {
-        public static Bo GenerateBo(DatabaseTable table)
+        private  static Bo GenerateBo(DatabaseTable table)
         {
             return new Bo { Content = TemplateGenarator.GenerateBo(table), Name = table.Name };
         }
 
-        public static Repository GenerateRepository(DatabaseTable table)
+        private static Repository GenerateRepository(DatabaseTable table)
         {
             var repo = new Repository();
             var implContent = TemplateGenarator.GenerateRepository(table);
@@ -25,17 +25,17 @@ namespace MyCodeGenerator.Generators
             return repo;
         }
 
-        public static View GenerateView(DatabaseView view)
+        private static View GenerateView(DatabaseView view)
         {
             return new View { Name = view.Name, Content = TemplateGenarator.GenerateView(view) };
         }
 
-        public static Sp GenerateSp(DatabaseStoredProcedure procedure)
+        private static Sp GenerateSp(DatabaseStoredProcedure procedure)
         {
             return new Sp { Name = procedure.Name, Content = TemplateGenarator.GenerateStoredProcedure(procedure), StoredProcedure = procedure };
         }
 
-        public static void GenerateReferenceLists(DatabaseSchema schema, List<Bo> bos)
+        private static void GenerateReferenceLists(DatabaseSchema schema, List<Bo> bos)
         {
             foreach (var bo in bos)
             {

@@ -34,6 +34,11 @@ namespace MyCodeGenerator.Writers
             var unitofWork = impl + "\\UnitOfWork.cs";
             var boCollection = impl + "\\BoCollection.cs";
 
+            var iconnectionContainer = core + "\\IConnectionContainer.cs";
+            var connectionContainer = core + "\\ConnectionContainer.cs";
+            var iconnectionManager = core + "\\IConnectionManager.cs";
+            var connectionManager = core + "\\ConnectionManager.cs";
+
             WriteFolderIfNotExists(basedir);
             WriteFolderIfNotExists(core);
             WriteFolderIfNotExists(impl);
@@ -71,6 +76,10 @@ namespace MyCodeGenerator.Writers
                 .Replace("$views$",viewString.ToString())
                 .Replace("$storedProcedures$",spString.ToString()));
             WriteFile(boCollection,TemplateGenarator.ReadTemplate("BoCollection"));
+            WriteFile(iconnectionContainer, TemplateGenarator.ReadTemplate("IConnectionContainer"));
+            WriteFile(iconnectionManager, TemplateGenarator.ReadTemplate("IConnectionManager"));
+            WriteFile(connectionContainer, TemplateGenarator.ReadTemplate("ConnectionContainer"));
+            WriteFile(connectionManager, TemplateGenarator.ReadTemplate("ConnectionManager"));
         }
 
         private static void WriteBo(Bo bo,string basePath)

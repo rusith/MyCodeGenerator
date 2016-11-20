@@ -19,6 +19,7 @@ namespace $projectNs$.Base.Implementation
 
 		private readonly HashSet<UpdateRecord> _dirtyEntities;
         private readonly HashSet<Entity> _entities; 
+        private readonly IConnectionContainer _connectionContainer;
         private readonly IDbConnection _connection;
         private readonly HashSet<EntityRecord> _addedEntities;
         private readonly HashSet<EntityRecord> _deletedEntities;
@@ -36,35 +37,14 @@ namespace $projectNs$.Base.Implementation
 
 		internal  $projectName$Context()
         {
-            _connection = new SqlConnection(ConfigurationManager.ConnectionStrings["$projectName$"].ConnectionString);
-            _connection.Open();
+		    _connectionContainer = ConnectionManager.GetConnection(this);
+		    _connection = _connectionContainer.Connection;
             _dirtyEntities = new HashSet<UpdateRecord>();
 			_entities=new HashSet<Entity>();
             _addedEntities = new HashSet<EntityRecord>();
             _deletedEntities = new HashSet<EntityRecord>();
 			_references =new HashSet<EntityReference>();
         }
-
-		#endregion
-
-		#region private methods
-
-		private void RegisterEntity(Entity entity, EntityState state)
-		{
-			if(entity == null)
-				return;
-		    var entities=_entities.Where(i => i.AreSame(entity)).ToList();
-		    if (entities.Count > 0)
-		        foreach (var ent in entities)
-		            ent.Copy(entity);
-		    else
-		    {
-                _entities.Add(entity);
-                entity.PropertyChanged += EntityPropertyChanged;
-                entity.Context = this;
-				entity.BusinessObjectState = state;
-            }
-		}
 
 		#endregion
 
@@ -123,7 +103,7 @@ namespace $projectNs$.Base.Implementation
 
 		#endregion
 
-#region Private methods
+		#region Private methods
 
 		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -142,6 +122,23 @@ namespace $projectNs$.Base.Implementation
                 _dirtyEntities.Add(n);
             }
         }
+
+		private void RegisterEntity(Entity entity, EntityState state)
+		{
+			if(entity == null)
+				return;
+		    var entities=_entities.Where(i => i.AreSame(entity)).ToList();
+		    if (entities.Count > 0)
+		        foreach (var ent in entities)
+		            ent.Copy(entity);
+		    else
+		    {
+                _entities.Add(entity);
+                entity.PropertyChanged += EntityPropertyChanged;
+                entity.Context = this;
+				entity.BusinessObjectState = state;
+            }
+		}
 
 		#endregion
 
@@ -203,7 +200,7 @@ namespace $projectNs$.Base.Implementation
 
         public void Dispose()
         {
-            _connection.Close();
+            _connectionContainer.Close(this);
             _dirtyEntities.Clear();
             _addedEntities.Clear();
             _entities.Clear();
@@ -433,6 +430,18 @@ namespace $projectNs$.Base.Implementation
             	
 		    return entities;
 		}
+
+		public T First<T>(string tableName) where T : Entity
+        {
+            if (string.IsNullOrWhiteSpace(tableName))
+                return null;
+            var query = string.Format("SELECT TOP 1 * FROM {0}", tableName);
+            var entity = _connection.Query<T>(query).FirstOrDefault();
+            if (entity == null)
+                return null;
+            RegisterEntity(entity,EntityState.Retrived);
+            return entity;
+        }
 
         public static string CreateWhere(object where)
         {

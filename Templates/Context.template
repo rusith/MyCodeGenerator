@@ -431,19 +431,39 @@ namespace $projectNs$.Base.Implementation
 		    return entities;
 		}
 
-		public T First<T>(string tableName) where T : Entity
+		public T First<T>(string tableName,string primaryKeyName) where T : Entity
         {
             if (string.IsNullOrWhiteSpace(tableName))
                 return null;
-            var query = string.Format("SELECT TOP 1 * FROM {0}", tableName);
-            var entity = _connection.Query<T>(query).FirstOrDefault();
-            if (entity == null)
-                return null;
-            RegisterEntity(entity,EntityState.Retrived);
-            return entity;
+            if (!string.IsNullOrWhiteSpace(primaryKeyName))
+            {
+                var query = string.Format("SELECT TOP 1 {0} FROM {1}", primaryKeyName, tableName);
+                var primekey = _connection.ExecuteScalar(query);
+                if (primekey == null)
+                    return null;
+                var forPrimekey = _entities.OfType<T>().Where(e => e.PrimaryKey.Equals(primekey)).ToList();
+                if (forPrimekey.Count < 1)
+                {
+                    var entity = _connection.Query<T>(string.Format("SELECT TOP 1 * FROM {0}", tableName)).FirstOrDefault();
+                    if (entity == null)
+                        return null;
+                    RegisterEntity(entity, EntityState.Retrived);
+                    return entity;
+                }
+                return forPrimekey.First();
+            }
+            else
+            {
+                var query = string.Format("SELECT TOP 1 * FROM {0}", tableName);
+                var entity = _connection.Query<T>(query).FirstOrDefault();
+                if (entity == null)
+                    return null;
+                RegisterEntity(entity, EntityState.Retrived);
+                return entity;
+            }
         }
 
-        public static string CreateWhere(object where)
+        private static string CreateWhere(object where)
         {
             var type = where.GetType();
             var builder = new StringBuilder(" WHERE ");
@@ -466,7 +486,7 @@ namespace $projectNs$.Base.Implementation
 
         #region Internal methods
 
-        private void AddEntityReference(Entity parent,Entity child,string column)
+        internal void AddEntityReference(Entity parent,Entity child,string column)
         {
             _references.Add(new EntityReference {Child = child, Parent = parent, ColumnName = column});
         }

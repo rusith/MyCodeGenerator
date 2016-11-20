@@ -29,7 +29,7 @@ namespace $projectNs$.Base.Core
 		List<T> QueryView<T>(string viewname, object where = null) where T : class;
 		List<T> Query<T>(string sql) where T : class;
 		List<T> SelectPage<T>(string tableName,int pageSize,int page,string primaryKeyName) where T : Entity;
-		T First<T>(string tableName) where T : Entity;
+		T First<T>(string tableName,string primaryKeyName) where T : Entity;
 		void AddEntityReference(Entity parent,Entity child,string column);
 
 		#endregion

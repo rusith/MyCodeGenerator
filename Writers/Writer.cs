@@ -35,9 +35,9 @@ namespace MyCodeGenerator.Writers
             var boCollection = impl + "\\BoCollection.cs";
 
             var iconnectionContainer = core + "\\IConnectionContainer.cs";
-            var connectionContainer = core + "\\ConnectionContainer.cs";
+            var connectionContainer = impl + "\\ConnectionContainer.cs";
             var iconnectionManager = core + "\\IConnectionManager.cs";
-            var connectionManager = core + "\\ConnectionManager.cs";
+            var connectionManager = impl + "\\ConnectionManager.cs";
 
             WriteFolderIfNotExists(basedir);
             WriteFolderIfNotExists(core);

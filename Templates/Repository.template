@@ -92,7 +92,7 @@ namespace $projectNs$.Repositories.Implementation
 
 		public T First()
 		{
-			return Context.First<T>(TableName);
+			return Context.First<T>(TableName, PrimaryKeyName);
 		}
 
 		#endregion

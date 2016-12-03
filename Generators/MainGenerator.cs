@@ -7,7 +7,7 @@ using MyCodeGenerator.Writers;
 
 namespace MyCodeGenerator.Generators
 {
-    public class MainGenerator
+    public static class MainGenerator
     {
         private  static Bo GenerateBo(DatabaseTable table)
         {
@@ -62,6 +62,7 @@ namespace MyCodeGenerator.Generators
 
         private static List<Repository> GeneRepositories(DatabaseSchema schema)
         {
+            
             return schema.Tables.Select(GenerateRepository).ToList();
         }
 

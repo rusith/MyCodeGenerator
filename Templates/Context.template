@@ -234,8 +234,8 @@ namespace $projectNs$.Base.Implementation
 
                     if (_references.Any(r => r.Parent == entity.Entity))
                     {
-                        var parentId = _connection.ExecuteScalar<int>(query);
-                        if (parentId <= 0)
+                        var parentId = _connection.ExecuteScalar<object>(query);
+                        if (parentId == null)
                             continue;
                         foreach (var re in _references.Where(r => r.Parent == entity.Entity))
                         {
@@ -247,7 +247,8 @@ namespace $projectNs$.Base.Implementation
                     }
                     else
                     {
-                        lastQuery.Append(query);
+                        var parentId = _connection.ExecuteScalar<object>(query);
+                        entity.PrimaryKay = parentId;
                     }
                 }
             }

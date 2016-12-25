@@ -248,7 +248,7 @@ namespace $projectNs$.Base.Implementation
                     else
                     {
                         var parentId = _connection.ExecuteScalar<object>(query);
-                        entity.PrimaryKay = parentId;
+                        entity.Entity.SetPrimaryKey(parentId);
                     }
                 }
             }

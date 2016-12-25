@@ -43,7 +43,7 @@ namespace $projectNs$.Objects.Implementation
 				return;
 			$copyProperties$
 		}
-
+		$primaryFunction$
 		#endregion
 
 		#region Constructors

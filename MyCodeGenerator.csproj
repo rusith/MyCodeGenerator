@@ -59,6 +59,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Extensions\ColumnExtensions.cs" />
+    <Compile Include="Extensions\TableExtensions.cs" />
+    <Compile Include="Extensions\Templates.cs" />
+    <Compile Include="Models\DBTable.cs" />
     <Compile Include="Models\Repository.cs" />
     <Compile Include="Models\Sp.cs" />
     <Compile Include="Models\View.cs" />
@@ -183,6 +187,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Templates\IConnectionContainer.template">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Templates\primaryKeyFunc.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

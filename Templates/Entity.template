@@ -38,7 +38,7 @@ namespace $projectNs$.Objects.Implementation
         #region Internal Properties
 
         internal object PrimaryKey { get; set; }
-
+        
 		internal string PrimaryKeyName { get; set; }
 
         internal IDbContext Context { get; set; }
@@ -76,6 +76,8 @@ namespace $projectNs$.Objects.Implementation
 				return Equals(en);
 			return TableName.Equals(en.TableName) && PrimaryKey.Equals(en.PrimaryKey);
 		}
+
+		internal virtual void SetPrimaryKey(object n){}
 
 		#endregion
     }

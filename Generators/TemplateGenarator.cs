@@ -11,6 +11,7 @@ namespace MyCodeGenerator.Generators
     {
         private static string  _fieldTemplate;
         private static string _propertyTemplate;
+        private static string _primaryKeyFuncTemplate;
         private static string _referencePropertyTemplate;
         private static string _boTemplate;
         private static string _repositoryTemplate;
@@ -112,6 +113,22 @@ namespace MyCodeGenerator.Generators
             }
         }
 
+        public static string GeneratePrimaryKeyFunction(DatabaseColumn primaryKeyColumn)
+        {
+            if (_primaryKeyFuncTemplate == null)
+            {
+                _primaryKeyFuncTemplate = ReadTemplate("primaryKeyFunc");
+            }
+            var builder = new StringBuilder(_primaryKeyFuncTemplate);
+            return builder
+                .Replace("$propertyName$", primaryKeyColumn.Name)
+                .Replace("$conversion$",GetConversion(primaryKeyColumn.DataType.NetDataTypeCSharpName, "primaryKey"))
+                .ToString();
+                
+        }
+
+
+
         public static string GenerateBo(DatabaseTable table)
         {
             if (table == null)
@@ -126,8 +143,6 @@ namespace MyCodeGenerator.Generators
             copyValues.Add(string.Format("\n\t\t\tBusinessObjectState = entity.BusinessObjectState;"));
             foreach (var column in table.Columns)
             {
-
-
                 fields.Add(GenerateField(column));
                 properties.Add(GenerateProperty(column));
                 if (column.IsForeignKey)
@@ -147,6 +162,14 @@ namespace MyCodeGenerator.Generators
 
             }
 
+            var primeKey = "";
+            var primaryFunction = ""; 
+            if (table.PrimaryKey != null)
+            {
+                primeKey = table.PrimaryKeyColumn.Name;
+                primaryFunction = (GeneratePrimaryKeyFunction(table.PrimaryKeyColumn));
+            }
+
             var fieldsString = fields.Aggregate((c, n) => c + n);
             var propertiesString = properties.Aggregate((c, n) => c + n);
             var columnString = new StringBuilder();
@@ -155,9 +178,6 @@ namespace MyCodeGenerator.Generators
                 columnString.AppendFormat("\n\t\t\t\t{{\"{0}\", {0}}},", col.Name);
             }
 
-            var primeKey = "";
-            if (table.PrimaryKey != null)
-                primeKey = table.PrimaryKeyColumn.Name;
 
             var builder = new StringBuilder(_boTemplate);
             return builder.Replace("$tableName$", table.Name)
@@ -165,7 +185,8 @@ namespace MyCodeGenerator.Generators
                 .Replace("$properties$", propertiesString)
                 .Replace("$columnValueMappings$", columnString.ToString().TrimEnd(','))
                 .Replace("$copyProperties$", copyValues.Aggregate((c, n) => c + n))
-                .Replace("$primaryKeyName$",primeKey).ToString();
+                .Replace("$primaryKeyName$",primeKey)
+                .Replace("$primaryFunction$",primaryFunction).ToString();
         }
 
 
@@ -239,6 +260,26 @@ namespace MyCodeGenerator.Generators
             _referenceListTemplate = null;
             _viewTemplate = null;
             _autoPropertyTemplate = null;
+        }
+
+        private static string GetConversion(string typeName,string objectName)
+        {
+            
+            switch (typeName)
+            {
+                case "int":
+                case "short":
+                case "double":
+                case "decimal":
+                case "float":
+                case "bool":
+                case "DateTime":
+                    return typeName+".Parse(" + objectName + ".ToString())";
+                case "string":
+                    return objectName + ".ToString()";
+            }
+
+            return "(typeName)objectName";
         }
     }
 }

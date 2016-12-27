@@ -1,0 +1,6 @@
+﻿		
+		internal override void SetPrimaryKey(object primaryKey)
+		{
+			if(primaryKey != null)
+				 $propertyName$ = $conversion$;
+		}

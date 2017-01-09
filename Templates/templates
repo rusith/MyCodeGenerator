@@ -1,0 +1,60 @@
+##AUTOPROPERTY
+
+		public $dataType$ $name$ { get; set; }}
+###
+##FIELD
+
+		private $dataType$ $name$;
+###
+##DAL
+namespace $projectNs$
+{
+	namespace $projectNs$.Base 
+	{
+		namespace $projectNs$.Base.Core
+		{
+			$iConnctionContainer$
+			$iConnectionManager$
+			$iDbContext$
+			$iUnitOfWork$
+		}
+
+		namespace $projectNs$.Base.Implementation
+		{
+			$boCollection$
+			$connectionCOntainer$
+			$connectionManager$
+			$context$
+			$unitOfWork$
+		}
+	}
+
+	namespace $projectNs$.Objects
+	{
+		namespace $projectNs$.Objects.Implementation
+		{
+			$bos$
+		}
+		
+		namespace $projectNs$.Objects.SPs
+		{
+			$sps$
+		}
+
+		namespace $projectNs$.Objects.Views
+		{
+			$views$
+		}
+	}
+
+	namespace $projectNs$.Repositories
+	{
+		namespace $projectNs$.Repositories
+		{
+			
+		}
+	}
+
+
+}
+###

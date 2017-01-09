@@ -73,6 +73,7 @@ namespace MyCodeGenerator
             catch (Exception e)
             {
                 WinForms.MessageBox.Show("Unable to read the database \n\n" + e.Message.Replace(Environment.NewLine, "\t" + Environment.NewLine), "Unable to read database", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
             Settings.RootDirectory = rootDirectory;

@@ -59,6 +59,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Base\Template.cs" />
+    <Compile Include="Base\Templates.cs" />
     <Compile Include="Extensions\ColumnExtensions.cs" />
     <Compile Include="Extensions\TableExtensions.cs" />
     <Compile Include="Extensions\Templates.cs" />
@@ -87,6 +89,9 @@
     </None>
     <Compile Include="Writers\Writer.cs" />
     <None Include="Templates\storedProcedure.template">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Templates\templates">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Templates\view.template">
